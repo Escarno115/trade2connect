@@ -93,8 +93,10 @@ const BusinessDashboard = () => {
   });
 
   const requestUpgradeMutation = useMutation({
-    mutationFn: async (requestedTier: SubscriptionTier) => {
+    mutationFn: async ({ requestedTier, cycle }: { requestedTier: SubscriptionTier; cycle: BillingCycle }) => {
       if (!business) return;
+      // Update billing cycle on business
+      await supabase.from("businesses").update({ billing_cycle: cycle } as any).eq("id", business.id);
       const { error } = await supabase.from("subscription_requests").insert({
         business_id: business.id,
         current_tier: business.subscription_tier,
@@ -105,6 +107,34 @@ const BusinessDashboard = () => {
     onSuccess: () => {
       toast.success("Upgrade request submitted! We'll review it shortly.");
       queryClient.invalidateQueries({ queryKey: ["subscription-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["my-business"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Invoices query
+  const { data: invoices } = useQuery({
+    queryKey: ["my-invoices", business?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("invoices" as any)
+        .select("*")
+        .eq("business_id", business!.id)
+        .order("created_at", { ascending: false });
+      return (data ?? []) as any[];
+    },
+    enabled: !!business,
+  });
+
+  const updateBillingCycleMutation = useMutation({
+    mutationFn: async (cycle: BillingCycle) => {
+      if (!business) return;
+      const { error } = await supabase.from("businesses").update({ billing_cycle: cycle } as any).eq("id", business.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Billing cycle updated!");
+      queryClient.invalidateQueries({ queryKey: ["my-business"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
