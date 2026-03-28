@@ -215,9 +215,10 @@ const AdminPanel = () => {
   }
 
   const tabs = [
-    { key: "businesses" as const, label: "Businesses", icon: Building2 },
-    { key: "requests" as const, label: `Requests${pendingRequestsCount > 0 ? ` (${pendingRequestsCount})` : ""}`, icon: ArrowUpCircle },
-    { key: "bookings" as const, label: "Bookings", icon: CalendarDays },
+    { key: "businesses" as const, label: "Biz", icon: Building2 },
+    { key: "requests" as const, label: `Req${pendingRequestsCount > 0 ? ` (${pendingRequestsCount})` : ""}`, icon: ArrowUpCircle },
+    { key: "invoices" as const, label: `Inv${pendingInvoicesCount > 0 ? ` (${pendingInvoicesCount})` : ""}`, icon: Receipt },
+    { key: "bookings" as const, label: "Book", icon: CalendarDays },
     { key: "users" as const, label: "Users", icon: Users },
   ];
 
