@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Shield, CheckCircle2, XCircle, Users, Building2, CalendarDays, FileText, ExternalLink, ArrowUpCircle, Phone } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle2, XCircle, Users, Building2, CalendarDays, FileText, ExternalLink, ArrowUpCircle, Phone, Receipt, DollarSign } from "lucide-react";
 import { TIER_LABELS } from "@/lib/constants";
 import { getCountryByCode } from "@/lib/countries";
 import type { Database } from "@/integrations/supabase/types";
