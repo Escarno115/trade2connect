@@ -532,6 +532,7 @@ const AdminPanel = () => {
           </div>
         )}
 
+        {activeTab === "users" && (
           <div className="space-y-3">
             {users?.map((u: any) => (
               <div key={u.id} className="bg-card rounded-xl border p-4 flex items-center gap-3">
