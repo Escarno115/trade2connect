@@ -20,7 +20,7 @@ const AdminPanel = () => {
   const { user, userRole } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"businesses" | "requests" | "bookings" | "users">("businesses");
+  const [activeTab, setActiveTab] = useState<"businesses" | "requests" | "bookings" | "users" | "invoices">("businesses");
   const [rejectReason, setRejectReason] = useState("");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [expandedBizId, setExpandedBizId] = useState<string | null>(null);
