@@ -43,6 +43,7 @@ const App = () => (
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:bookingId" element={<ChatPage />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />

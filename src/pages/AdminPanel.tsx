@@ -455,15 +455,40 @@ const AdminPanel = () => {
 
         {activeTab === "invoices" && (
           <div className="space-y-3">
-            <Button
-              size="sm"
-              className="w-full text-xs"
-              disabled={generateInvoicesMutation.isPending}
-              onClick={() => generateInvoicesMutation.mutate()}
-            >
-              <Receipt className="h-3.5 w-3.5 mr-1" />
-              {generateInvoicesMutation.isPending ? "Generating..." : "Generate Invoices Now"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="flex-1 text-xs"
+                disabled={generateInvoicesMutation.isPending}
+                onClick={() => generateInvoicesMutation.mutate()}
+              >
+                <Receipt className="h-3.5 w-3.5 mr-1" />
+                {generateInvoicesMutation.isPending ? "Generating..." : "Generate Invoices"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                onClick={() => {
+                  if (!allInvoices || allInvoices.length === 0) return toast.error("No invoices to export");
+                  const headers = ["Business,Amount,Status,Billing Cycle,Tier,Due Date,Paid At,Created"];
+                  const rows = allInvoices.map((i: any) =>
+                    `"${i.businesses?.name ?? "Unknown"}",${i.amount},${i.status},${i.billing_cycle},${i.subscription_tier},${i.due_date},${i.paid_at ?? ""},${i.created_at}`
+                  );
+                  const csv = [headers, ...rows].join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `invoices-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success("CSV exported!");
+                }}
+              >
+                <Download className="h-3.5 w-3.5 mr-1" /> CSV
+              </Button>
+            </div>
 
             {/* Invoice stats */}
             {allInvoices && allInvoices.length > 0 && (() => {
