@@ -453,7 +453,85 @@ const AdminPanel = () => {
           </div>
         )}
 
-        {activeTab === "users" && (
+        {activeTab === "invoices" && (
+          <div className="space-y-3">
+            <Button
+              size="sm"
+              className="w-full text-xs"
+              disabled={generateInvoicesMutation.isPending}
+              onClick={() => generateInvoicesMutation.mutate()}
+            >
+              <Receipt className="h-3.5 w-3.5 mr-1" />
+              {generateInvoicesMutation.isPending ? "Generating..." : "Generate Invoices Now"}
+            </Button>
+
+            {/* Invoice stats */}
+            {allInvoices && allInvoices.length > 0 && (() => {
+              const totalPending = allInvoices.filter((i: any) => i.status === "pending").reduce((s: number, i: any) => s + Number(i.amount), 0);
+              const totalPaid = allInvoices.filter((i: any) => i.status === "paid").reduce((s: number, i: any) => s + Number(i.amount), 0);
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-warning/5 rounded-xl border border-warning/20 p-3 text-center">
+                    <p className="text-lg font-bold text-warning">${totalPending.toFixed(2)}</p>
+                    <p className="text-[10px] text-muted-foreground">Pending</p>
+                  </div>
+                  <div className="bg-success/5 rounded-xl border border-success/20 p-3 text-center">
+                    <p className="text-lg font-bold text-success">${totalPaid.toFixed(2)}</p>
+                    <p className="text-[10px] text-muted-foreground">Collected</p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {allInvoices && allInvoices.length > 0 ? allInvoices.map((inv: any) => (
+              <div key={inv.id} className="bg-card rounded-xl border p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-sm font-semibold">{inv.businesses?.name ?? "Unknown"}</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <DollarSign className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-sm font-bold text-primary">${Number(inv.amount).toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{inv.billing_cycle} · {inv.subscription_tier}</p>
+                    <p className="text-[10px] text-muted-foreground">Due: {new Date(inv.due_date).toLocaleDateString()}</p>
+                    {inv.paid_at && <p className="text-[10px] text-success">Paid: {new Date(inv.paid_at).toLocaleDateString()}</p>}
+                  </div>
+                  <Badge className={cn("text-[10px] border-0",
+                    inv.status === "paid" ? "bg-success/10 text-success" :
+                    inv.status === "pending" ? "bg-warning/10 text-warning" :
+                    inv.status === "overdue" ? "bg-destructive/10 text-destructive" :
+                    "bg-secondary text-muted-foreground"
+                  )}>
+                    {inv.status}
+                  </Badge>
+                </div>
+                {inv.status === "pending" && (
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "paid" })}>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Paid
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 text-xs text-destructive" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "overdue" })}>
+                      <XCircle className="h-3.5 w-3.5 mr-1" /> Overdue
+                    </Button>
+                  </div>
+                )}
+                {inv.status === "overdue" && (
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "paid" })}>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Paid
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "cancelled" })}>
+                      Cancel
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )) : (
+              <p className="text-sm text-muted-foreground text-center py-6">No invoices yet</p>
+            )}
+          </div>
+        )}
+
           <div className="space-y-3">
             {users?.map((u: any) => (
               <div key={u.id} className="bg-card rounded-xl border p-4 flex items-center gap-3">
