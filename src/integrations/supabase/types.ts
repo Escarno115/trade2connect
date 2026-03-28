@@ -91,6 +91,8 @@ export type Database = {
           is_active: boolean
           logo_url: string | null
           name: string
+          office_address: string | null
+          operating_hours: Json | null
           owner_id: string
           phone: string | null
           phone_verified: boolean
@@ -113,6 +115,8 @@ export type Database = {
           is_active?: boolean
           logo_url?: string | null
           name: string
+          office_address?: string | null
+          operating_hours?: Json | null
           owner_id: string
           phone?: string | null
           phone_verified?: boolean
@@ -135,6 +139,8 @@ export type Database = {
           is_active?: boolean
           logo_url?: string | null
           name?: string
+          office_address?: string | null
+          operating_hours?: Json | null
           owner_id?: string
           phone?: string | null
           phone_verified?: boolean
