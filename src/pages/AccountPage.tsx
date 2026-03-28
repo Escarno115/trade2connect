@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Building2, Shield, ChevronRight } from "lucide-react";
+import { User, LogOut, Building2, Shield, ChevronRight, FileText } from "lucide-react";
 
 const AccountPage = () => {
   const { user, userRole, loading, signOut } = useAuth();
