@@ -123,6 +123,22 @@ const AdminPanel = () => {
     enabled: isAdmin,
   });
 
+  // All invoices
+  const { data: allInvoices } = useQuery({
+    queryKey: ["admin-invoices"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("invoices" as any)
+        .select("*, businesses(name)")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return (data ?? []) as any[];
+    },
+    enabled: isAdmin,
+  });
+
+  const pendingInvoicesCount = allInvoices?.filter((i: any) => i.status === "pending").length ?? 0;
+
   const pendingRequestsCount = subscriptionRequests?.filter((r: any) => r.status === "pending").length ?? 0;
 
   const handleRequestMutation = useMutation({
@@ -144,6 +160,35 @@ const AdminPanel = () => {
       toast.success(vars.status === "approved" ? "Upgrade approved! Business tier updated." : "Request rejected.");
       queryClient.invalidateQueries({ queryKey: ["admin-subscription-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-businesses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const markInvoiceMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "paid" | "overdue" | "cancelled" }) => {
+      const updateData: any = { status };
+      if (status === "paid") updateData.paid_at = new Date().toISOString();
+      const { error } = await supabase
+        .from("invoices" as any)
+        .update(updateData)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      toast.success(`Invoice marked as ${vars.status}`);
+      queryClient.invalidateQueries({ queryKey: ["admin-invoices"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const generateInvoicesMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.functions.invoke("generate-invoices");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Invoices generated!");
+      queryClient.invalidateQueries({ queryKey: ["admin-invoices"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
