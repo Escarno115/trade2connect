@@ -56,6 +56,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         description: desc || null,
         phone: phone || null,
         email: email || null,
+        office_address: officeAddress || null,
       });
       if (error) throw error;
     },
