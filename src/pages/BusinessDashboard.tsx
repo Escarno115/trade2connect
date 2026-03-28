@@ -448,6 +448,31 @@ const BusinessDashboard = () => {
               </p>
             </div>
 
+            {invoices && invoices.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full text-xs"
+                onClick={() => {
+                  const headers = ["Amount,Status,Billing Cycle,Tier,Due Date,Paid At,Created"];
+                  const rows = invoices.map((i: any) =>
+                    `${i.amount},${i.status},${i.billing_cycle},${i.subscription_tier},${i.due_date},${i.paid_at ?? ""},${i.created_at}`
+                  );
+                  const csv = [headers, ...rows].join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `my-invoices-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success("CSV exported!");
+                }}
+              >
+                <Download className="h-3.5 w-3.5 mr-1" /> Export Invoices CSV
+              </Button>
+            )}
+
             {invoices && invoices.length > 0 ? invoices.map((inv: any) => (
               <div key={inv.id} className="bg-card rounded-xl border p-4">
                 <div className="flex justify-between items-start">
