@@ -414,6 +414,66 @@ const BusinessDashboard = () => {
           </div>
         )}
 
+        {activeTab === "invoices" && (
+          <div className="space-y-3">
+            <div className="bg-card rounded-xl border p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold">Billing Cycle</h3>
+                <div className="flex gap-1 bg-secondary rounded-lg p-0.5">
+                  {(["monthly", "weekly"] as const).map((cycle) => (
+                    <button
+                      key={cycle}
+                      onClick={() => {
+                        setBillingCycle(cycle);
+                        updateBillingCycleMutation.mutate(cycle);
+                      }}
+                      className={cn(
+                        "px-3 py-1 text-xs font-medium rounded-md transition-colors capitalize",
+                        (business as any).billing_cycle === cycle ? "bg-card shadow-sm" : "text-muted-foreground"
+                      )}
+                    >
+                      {cycle}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Current: <span className="font-medium text-foreground capitalize">{(business as any).billing_cycle ?? "monthly"}</span>
+                {business.subscription_tier !== "free" && (
+                  <> · <span className="font-medium text-primary">
+                    ${TIER_PRICES[business.subscription_tier][(business as any).billing_cycle === "weekly" ? "weekly" : "monthly"]}
+                    /{(business as any).billing_cycle === "weekly" ? "wk" : "mo"}
+                  </span></>
+                )}
+              </p>
+            </div>
+
+            {invoices && invoices.length > 0 ? invoices.map((inv: any) => (
+              <div key={inv.id} className="bg-card rounded-xl border p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <Receipt className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm font-semibold">${Number(inv.amount).toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{inv.billing_cycle} · {inv.subscription_tier}</p>
+                    <p className="text-[10px] text-muted-foreground">Due: {new Date(inv.due_date).toLocaleDateString()}</p>
+                  </div>
+                  <Badge className={cn("text-[10px] border-0",
+                    inv.status === "paid" ? "bg-success/10 text-success" :
+                    inv.status === "pending" ? "bg-warning/10 text-warning" :
+                    "bg-destructive/10 text-destructive"
+                  )}>
+                    {inv.status}
+                  </Badge>
+                </div>
+              </div>
+            )) : (
+              <p className="text-sm text-muted-foreground text-center py-6">No invoices yet</p>
+            )}
+          </div>
+        )}
+
         {activeTab === "portfolio" && (
           <PortfolioUpload businessId={business.id} userId={user!.id} />
         )}
@@ -441,12 +501,27 @@ const BusinessDashboard = () => {
             {/* Subscription Plans */}
             <div>
               <h3 className="text-sm font-semibold mb-2">Subscription Plans</h3>
+              <div className="flex gap-1 bg-secondary rounded-lg p-0.5 mb-3">
+                {(["monthly", "weekly"] as const).map((cycle) => (
+                  <button
+                    key={cycle}
+                    onClick={() => setBillingCycle(cycle)}
+                    className={cn(
+                      "flex-1 py-1.5 text-xs font-medium rounded-md transition-colors capitalize",
+                      billingCycle === cycle ? "bg-card shadow-sm" : "text-muted-foreground"
+                    )}
+                  >
+                    {cycle}
+                  </button>
+                ))}
+              </div>
               <div className="space-y-2">
                 {(["free", "basic", "pro"] as const).map((tier) => {
                   const isCurrentTier = business.subscription_tier === tier;
                   const tierOrder = { free: 0, basic: 1, pro: 2 } as const;
                   const isUpgrade = tierOrder[tier] > tierOrder[business.subscription_tier];
                   const pendingRequest = upgradeRequests?.find((r: any) => r.requested_tier === tier && r.status === "pending");
+                  const price = TIER_PRICES[tier][billingCycle];
                   return (
                     <div key={tier} className={cn("rounded-xl border p-3", isCurrentTier ? "border-primary bg-primary/5" : "bg-card")}>
                       <div className="flex justify-between items-center">
@@ -455,7 +530,10 @@ const BusinessDashboard = () => {
                           {isCurrentTier && <Badge className="ml-2 text-[10px] border-0 bg-primary/10 text-primary">Current</Badge>}
                           {pendingRequest && <Badge className="ml-2 text-[10px] border-0 bg-warning/10 text-warning">Pending</Badge>}
                         </div>
-                        <span className="text-sm font-bold">${TIER_PRICES[tier]}<span className="text-xs text-muted-foreground font-normal">/mo</span></span>
+                        <span className="text-sm font-bold">
+                          ${price}
+                          <span className="text-xs text-muted-foreground font-normal">/{billingCycle === "weekly" ? "wk" : "mo"}</span>
+                        </span>
                       </div>
                       <ul className="mt-1.5 space-y-0.5">
                         {TIER_FEATURES[tier].map((f) => (
@@ -469,12 +547,12 @@ const BusinessDashboard = () => {
                           size="sm"
                           className="w-full mt-2 text-xs"
                           disabled={requestUpgradeMutation.isPending}
-                          onClick={() => requestUpgradeMutation.mutate(tier)}
+                          onClick={() => requestUpgradeMutation.mutate({ requestedTier: tier, cycle: billingCycle })}
                         >
                           {requestUpgradeMutation.isPending ? (
                             <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Requesting...</>
                           ) : (
-                            <><ArrowUpCircle className="h-3 w-3 mr-1" /> Request Upgrade</>
+                            <><ArrowUpCircle className="h-3 w-3 mr-1" /> Request Upgrade ({billingCycle})</>
                           )}
                         </Button>
                       )}
