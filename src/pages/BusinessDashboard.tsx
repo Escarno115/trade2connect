@@ -223,6 +223,7 @@ const BusinessDashboard = () => {
   const tabs = [
     { key: "services" as const, label: "Services" },
     { key: "bookings" as const, label: "Bookings" },
+    { key: "invoices" as const, label: "Invoices" },
     { key: "portfolio" as const, label: "Portfolio" },
     { key: "reviews" as const, label: "Reviews" },
     { key: "profile" as const, label: "Profile" },
