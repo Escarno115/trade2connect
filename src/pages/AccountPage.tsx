@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Building2, Shield, ChevronRight } from "lucide-react";
+import { User, LogOut, Building2, Shield, ChevronRight, FileText } from "lucide-react";
 
 const AccountPage = () => {
   const { user, userRole, loading, signOut } = useAuth();
@@ -60,6 +60,14 @@ const AccountPage = () => {
           </button>
         ))}
 
+        <button
+          onClick={() => navigate("/terms")}
+          className="w-full flex items-center gap-3 p-4 bg-card rounded-xl border active-scale text-left"
+        >
+          <FileText className="h-5 w-5 text-muted-foreground" />
+          <span className="flex-1 text-sm font-medium">Terms & Conditions</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
         <button
           onClick={async () => {
             await signOut();

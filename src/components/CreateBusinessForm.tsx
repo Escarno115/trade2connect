@@ -20,6 +20,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const [desc, setDesc] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [officeAddress, setOfficeAddress] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
   const countryConfig = getCountryByCode(country);
@@ -55,6 +56,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         description: desc || null,
         phone: phone || null,
         email: email || null,
+        office_address: officeAddress || null,
       });
       if (error) throw error;
     },
@@ -127,6 +129,10 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
             <div>
               <Label className="text-xs">Email</Label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs">Office / Workshop Address</Label>
+              <Textarea value={officeAddress} onChange={(e) => setOfficeAddress(e.target.value)} rows={2} className="mt-1" placeholder="Full address of your workplace" />
             </div>
 
             {/* Show required documents for this country */}

@@ -18,6 +18,7 @@ import BusinessAnalyticsPage from "./pages/BusinessAnalyticsPage";
 import MessagesPage from "./pages/MessagesPage";
 import ChatPage from "./pages/ChatPage";
 import NotFound from "./pages/NotFound";
+import TermsPage from "./pages/TermsPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:bookingId" element={<ChatPage />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />

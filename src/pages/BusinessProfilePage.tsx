@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, MapPin, Phone, Mail, Star, Crown } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MapPin, Phone, Mail, Star, Crown, Clock } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ReviewsList } from "@/components/ReviewsList";
@@ -120,6 +120,35 @@ const BusinessProfilePage = () => {
             </a>
           )}
         </div>
+
+        {/* Office Address */}
+        {(business as any).office_address && (
+          <div className="flex items-start gap-1.5 mt-3">
+            <MapPin className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground">{(business as any).office_address}</p>
+          </div>
+        )}
+
+        {/* Operating Hours */}
+        {(business as any).operating_hours && Object.keys((business as any).operating_hours).length > 0 && (
+          <div className="mt-3">
+            <p className="text-xs font-semibold flex items-center gap-1.5 mb-1.5">
+              <Clock className="h-3.5 w-3.5" /> Hours of Operation
+            </p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
+              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => {
+                const h = (business as any).operating_hours[day];
+                if (!h) return null;
+                return (
+                  <div key={day} className="flex justify-between text-xs text-muted-foreground">
+                    <span>{day.slice(0, 3)}</span>
+                    <span>{h.closed ? "Closed" : `${h.open} - ${h.close}`}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Services */}
