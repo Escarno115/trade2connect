@@ -42,3 +42,5 @@ export const TIER_FEATURES = {
   basic: ["Up to 15 services", "7% commission per booking", "Featured in search", "Priority support"],
   pro: ["Unlimited services", "1% commission per booking", "Top placement", "Priority support", "PRO badge"],
 } as const;
+
+export type BillingCycle = "monthly" | "weekly";
