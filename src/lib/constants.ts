@@ -26,9 +26,9 @@ export const TIER_LABELS = {
 } as const;
 
 export const TIER_PRICES = {
-  free: 0,
-  basic: 25,
-  pro: 50,
+  free: { monthly: 0, weekly: 0 },
+  basic: { monthly: 50, weekly: 12.50 },
+  pro: { monthly: 100, weekly: 25 },
 } as const;
 
 export const TIER_COMMISSIONS = {
@@ -42,3 +42,5 @@ export const TIER_FEATURES = {
   basic: ["Up to 15 services", "7% commission per booking", "Featured in search", "Priority support"],
   pro: ["Unlimited services", "1% commission per booking", "Top placement", "Priority support", "PRO badge"],
 } as const;
+
+export type BillingCycle = "monthly" | "weekly";
