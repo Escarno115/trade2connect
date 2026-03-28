@@ -13,7 +13,7 @@ import type { BillingCycle } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, XCircle, Clock, DollarSign, AlertTriangle, ArrowUpCircle, Loader2, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, XCircle, Clock, DollarSign, AlertTriangle, ArrowUpCircle, Loader2, BarChart3, Receipt } from "lucide-react";
 import { BookingChat } from "@/components/BookingChat";
 import { VerificationUpload } from "@/components/VerificationUpload";
 import { CreateBusinessForm } from "@/components/CreateBusinessForm";
