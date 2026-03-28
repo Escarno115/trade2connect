@@ -30,7 +30,8 @@ const BusinessDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"services" | "bookings" | "portfolio" | "reviews" | "profile">("services");
+  const [activeTab, setActiveTab] = useState<"services" | "bookings" | "portfolio" | "reviews" | "profile" | "invoices">("services");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [showAddService, setShowAddService] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
