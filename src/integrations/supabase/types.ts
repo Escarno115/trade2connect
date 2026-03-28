@@ -80,6 +80,7 @@ export type Database = {
       businesses: {
         Row: {
           address: string | null
+          billing_cycle: string
           city: string
           country: string
           cover_url: string | null
@@ -101,6 +102,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          billing_cycle?: string
           city?: string
           country?: string
           cover_url?: string | null
@@ -122,6 +124,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          billing_cycle?: string
           city?: string
           country?: string
           cover_url?: string | null
@@ -142,6 +145,50 @@ export type Database = {
           verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          billing_cycle: string
+          business_id: string
+          created_at: string
+          due_date: string
+          id: string
+          paid_at: string | null
+          status: string
+          subscription_tier: string
+        }
+        Insert: {
+          amount: number
+          billing_cycle?: string
+          business_id: string
+          created_at?: string
+          due_date: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          subscription_tier: string
+        }
+        Update: {
+          amount?: number
+          billing_cycle?: string
+          business_id?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          subscription_tier?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -470,6 +517,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_subscription_invoices: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
