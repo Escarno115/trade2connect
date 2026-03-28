@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Shield, CheckCircle2, XCircle, Users, Building2, CalendarDays, FileText, ExternalLink, ArrowUpCircle, Phone } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle2, XCircle, Users, Building2, CalendarDays, FileText, ExternalLink, ArrowUpCircle, Phone, Receipt, DollarSign } from "lucide-react";
 import { TIER_LABELS } from "@/lib/constants";
 import { getCountryByCode } from "@/lib/countries";
 import type { Database } from "@/integrations/supabase/types";
@@ -20,7 +20,7 @@ const AdminPanel = () => {
   const { user, userRole } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"businesses" | "requests" | "bookings" | "users">("businesses");
+  const [activeTab, setActiveTab] = useState<"businesses" | "requests" | "bookings" | "users" | "invoices">("businesses");
   const [rejectReason, setRejectReason] = useState("");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [expandedBizId, setExpandedBizId] = useState<string | null>(null);
@@ -123,6 +123,22 @@ const AdminPanel = () => {
     enabled: isAdmin,
   });
 
+  // All invoices
+  const { data: allInvoices } = useQuery({
+    queryKey: ["admin-invoices"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("invoices" as any)
+        .select("*, businesses(name)")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return (data ?? []) as any[];
+    },
+    enabled: isAdmin,
+  });
+
+  const pendingInvoicesCount = allInvoices?.filter((i: any) => i.status === "pending").length ?? 0;
+
   const pendingRequestsCount = subscriptionRequests?.filter((r: any) => r.status === "pending").length ?? 0;
 
   const handleRequestMutation = useMutation({
@@ -144,6 +160,35 @@ const AdminPanel = () => {
       toast.success(vars.status === "approved" ? "Upgrade approved! Business tier updated." : "Request rejected.");
       queryClient.invalidateQueries({ queryKey: ["admin-subscription-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-businesses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const markInvoiceMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "paid" | "overdue" | "cancelled" }) => {
+      const updateData: any = { status };
+      if (status === "paid") updateData.paid_at = new Date().toISOString();
+      const { error } = await supabase
+        .from("invoices" as any)
+        .update(updateData)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      toast.success(`Invoice marked as ${vars.status}`);
+      queryClient.invalidateQueries({ queryKey: ["admin-invoices"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const generateInvoicesMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.functions.invoke("generate-invoices");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Invoices generated!");
+      queryClient.invalidateQueries({ queryKey: ["admin-invoices"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -170,9 +215,10 @@ const AdminPanel = () => {
   }
 
   const tabs = [
-    { key: "businesses" as const, label: "Businesses", icon: Building2 },
-    { key: "requests" as const, label: `Requests${pendingRequestsCount > 0 ? ` (${pendingRequestsCount})` : ""}`, icon: ArrowUpCircle },
-    { key: "bookings" as const, label: "Bookings", icon: CalendarDays },
+    { key: "businesses" as const, label: "Biz", icon: Building2 },
+    { key: "requests" as const, label: `Req${pendingRequestsCount > 0 ? ` (${pendingRequestsCount})` : ""}`, icon: ArrowUpCircle },
+    { key: "invoices" as const, label: `Inv${pendingInvoicesCount > 0 ? ` (${pendingInvoicesCount})` : ""}`, icon: Receipt },
+    { key: "bookings" as const, label: "Book", icon: CalendarDays },
     { key: "users" as const, label: "Users", icon: Users },
   ];
 
@@ -403,6 +449,85 @@ const AdminPanel = () => {
             ))}
             {(!allBookings || allBookings.length === 0) && (
               <p className="text-sm text-muted-foreground text-center py-6">No bookings yet</p>
+            )}
+          </div>
+        )}
+
+        {activeTab === "invoices" && (
+          <div className="space-y-3">
+            <Button
+              size="sm"
+              className="w-full text-xs"
+              disabled={generateInvoicesMutation.isPending}
+              onClick={() => generateInvoicesMutation.mutate()}
+            >
+              <Receipt className="h-3.5 w-3.5 mr-1" />
+              {generateInvoicesMutation.isPending ? "Generating..." : "Generate Invoices Now"}
+            </Button>
+
+            {/* Invoice stats */}
+            {allInvoices && allInvoices.length > 0 && (() => {
+              const totalPending = allInvoices.filter((i: any) => i.status === "pending").reduce((s: number, i: any) => s + Number(i.amount), 0);
+              const totalPaid = allInvoices.filter((i: any) => i.status === "paid").reduce((s: number, i: any) => s + Number(i.amount), 0);
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-warning/5 rounded-xl border border-warning/20 p-3 text-center">
+                    <p className="text-lg font-bold text-warning">${totalPending.toFixed(2)}</p>
+                    <p className="text-[10px] text-muted-foreground">Pending</p>
+                  </div>
+                  <div className="bg-success/5 rounded-xl border border-success/20 p-3 text-center">
+                    <p className="text-lg font-bold text-success">${totalPaid.toFixed(2)}</p>
+                    <p className="text-[10px] text-muted-foreground">Collected</p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {allInvoices && allInvoices.length > 0 ? allInvoices.map((inv: any) => (
+              <div key={inv.id} className="bg-card rounded-xl border p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-sm font-semibold">{inv.businesses?.name ?? "Unknown"}</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <DollarSign className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-sm font-bold text-primary">${Number(inv.amount).toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{inv.billing_cycle} · {inv.subscription_tier}</p>
+                    <p className="text-[10px] text-muted-foreground">Due: {new Date(inv.due_date).toLocaleDateString()}</p>
+                    {inv.paid_at && <p className="text-[10px] text-success">Paid: {new Date(inv.paid_at).toLocaleDateString()}</p>}
+                  </div>
+                  <Badge className={cn("text-[10px] border-0",
+                    inv.status === "paid" ? "bg-success/10 text-success" :
+                    inv.status === "pending" ? "bg-warning/10 text-warning" :
+                    inv.status === "overdue" ? "bg-destructive/10 text-destructive" :
+                    "bg-secondary text-muted-foreground"
+                  )}>
+                    {inv.status}
+                  </Badge>
+                </div>
+                {inv.status === "pending" && (
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "paid" })}>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Paid
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 text-xs text-destructive" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "overdue" })}>
+                      <XCircle className="h-3.5 w-3.5 mr-1" /> Overdue
+                    </Button>
+                  </div>
+                )}
+                {inv.status === "overdue" && (
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "paid" })}>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Paid
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => markInvoiceMutation.mutate({ id: inv.id, status: "cancelled" })}>
+                      Cancel
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )) : (
+              <p className="text-sm text-muted-foreground text-center py-6">No invoices yet</p>
             )}
           </div>
         )}
