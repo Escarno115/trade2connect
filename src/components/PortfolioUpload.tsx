@@ -42,7 +42,7 @@ export const PortfolioUpload = ({ businessId, userId }: Props) => {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const path = `${userId}/${businessId}/${Date.now()}.${ext}`;
+      const path = `${businessId}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("portfolio-images").upload(path, file);
       if (uploadError) throw uploadError;
 
