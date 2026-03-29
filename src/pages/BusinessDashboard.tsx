@@ -215,6 +215,7 @@ const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState<"services" | "bookings" | "portfolio" | "reviews" | "profile" | "invoices">("services");
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [showAddService, setShowAddService] = useState(false);
+  const [payingInvoice, setPayingInvoice] = useState<{ id: string; amount: number } | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
