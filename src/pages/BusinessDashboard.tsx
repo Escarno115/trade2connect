@@ -675,9 +675,32 @@ const BusinessDashboard = () => {
                     {inv.status}
                   </Badge>
                 </div>
+                {inv.status === "pending" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full mt-3 text-xs"
+                    onClick={() => setPayingInvoice({ id: inv.id, amount: Number(inv.amount) })}
+                  >
+                    <CreditCard className="h-3.5 w-3.5 mr-1" /> Pay with PayPal
+                  </Button>
+                )}
               </div>
             )) : (
               <p className="text-sm text-muted-foreground text-center py-6">No invoices yet</p>
+            )}
+
+            {payingInvoice && (
+              <PayPalPayment
+                invoiceId={payingInvoice.id}
+                amount={payingInvoice.amount}
+                open={!!payingInvoice}
+                onOpenChange={(open) => !open && setPayingInvoice(null)}
+                onSuccess={() => {
+                  setPayingInvoice(null);
+                  queryClient.invalidateQueries({ queryKey: ["my-invoices"] });
+                }}
+              />
             )}
           </div>
         )}
