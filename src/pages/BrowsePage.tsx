@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ServiceCard } from "@/components/ServiceCard";
 import { CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const BrowsePage = () => {
@@ -16,6 +16,7 @@ const BrowsePage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [city, setCity] = useState("");
+  const [minRating, setMinRating] = useState(0);
 
   const { data: services, isLoading } = useQuery({
     queryKey: ["browse-services", selectedCategory, search, city, priceRange],
