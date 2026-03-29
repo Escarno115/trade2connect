@@ -200,9 +200,9 @@ const BrowsePage = () => {
               <div key={i} className="h-28 bg-secondary rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : services && services.length > 0 ? (
+        ) : filteredServices && filteredServices.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {services.map((service: any) => (
+            {filteredServices.map((service: any) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>
