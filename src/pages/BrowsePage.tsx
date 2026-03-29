@@ -166,8 +166,25 @@ const BrowsePage = () => {
                 />
               </div>
             </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Minimum rating</label>
+              <div className="flex gap-1 mt-1">
+                {[0, 1, 2, 3, 4, 5].map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setMinRating(r)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-xs font-medium active-scale transition-colors",
+                      minRating === r ? "bg-foreground text-background" : "bg-secondary text-secondary-foreground"
+                    )}
+                  >
+                    {r === 0 ? "Any" : <span className="flex items-center gap-0.5">{r}<Star className="h-3 w-3 fill-current" /></span>}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
-              onClick={() => { setCity(""); setPriceRange([0, 10000]); }}
+              onClick={() => { setCity(""); setPriceRange([0, 10000]); setMinRating(0); }}
               className="text-xs text-primary font-medium flex items-center gap-1"
             >
               <X className="h-3 w-3" /> Clear filters
