@@ -13,13 +13,14 @@ import type { BillingCycle } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, XCircle, Clock, DollarSign, AlertTriangle, ArrowUpCircle, Loader2, BarChart3, Receipt, Download, MapPin, ClockIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, XCircle, Clock, DollarSign, AlertTriangle, ArrowUpCircle, Loader2, BarChart3, Receipt, Download, MapPin, ClockIcon, CreditCard } from "lucide-react";
 import { BookingChat } from "@/components/BookingChat";
 import { VerificationUpload } from "@/components/VerificationUpload";
 import { CreateBusinessForm } from "@/components/CreateBusinessForm";
 import { getCountryByCode } from "@/lib/countries";
 import { PortfolioUpload } from "@/components/PortfolioUpload";
 import { ReviewsList } from "@/components/ReviewsList";
+import { PayPalPayment } from "@/components/PayPalPayment";
 import type { Database } from "@/integrations/supabase/types";
 
 type ServiceCategory = Database["public"]["Enums"]["service_category"];
@@ -214,6 +215,7 @@ const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState<"services" | "bookings" | "portfolio" | "reviews" | "profile" | "invoices">("services");
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [showAddService, setShowAddService] = useState(false);
+  const [payingInvoice, setPayingInvoice] = useState<{ id: string; amount: number } | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
@@ -673,9 +675,32 @@ const BusinessDashboard = () => {
                     {inv.status}
                   </Badge>
                 </div>
+                {inv.status === "pending" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full mt-3 text-xs"
+                    onClick={() => setPayingInvoice({ id: inv.id, amount: Number(inv.amount) })}
+                  >
+                    <CreditCard className="h-3.5 w-3.5 mr-1" /> Pay with PayPal
+                  </Button>
+                )}
               </div>
             )) : (
               <p className="text-sm text-muted-foreground text-center py-6">No invoices yet</p>
+            )}
+
+            {payingInvoice && (
+              <PayPalPayment
+                invoiceId={payingInvoice.id}
+                amount={payingInvoice.amount}
+                open={!!payingInvoice}
+                onOpenChange={(open) => !open && setPayingInvoice(null)}
+                onSuccess={() => {
+                  setPayingInvoice(null);
+                  queryClient.invalidateQueries({ queryKey: ["my-invoices"] });
+                }}
+              />
             )}
           </div>
         )}
