@@ -18,6 +18,23 @@ const BrowsePage = () => {
   const [city, setCity] = useState("");
   const [minRating, setMinRating] = useState(0);
 
+  // Fetch average ratings per business
+  const { data: ratingsMap } = useQuery({
+    queryKey: ["business-ratings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("reviews").select("business_id, rating");
+      const map: Record<string, { sum: number; count: number }> = {};
+      (data ?? []).forEach((r: any) => {
+        if (!map[r.business_id]) map[r.business_id] = { sum: 0, count: 0 };
+        map[r.business_id].sum += r.rating;
+        map[r.business_id].count += 1;
+      });
+      const avg: Record<string, number> = {};
+      for (const [id, v] of Object.entries(map)) avg[id] = v.sum / v.count;
+      return avg;
+    },
+  });
+
   const { data: services, isLoading } = useQuery({
     queryKey: ["browse-services", selectedCategory, search, city, priceRange],
     queryFn: async () => {
@@ -46,7 +63,6 @@ const BrowsePage = () => {
         results = results.filter((s: any) => s.business?.city?.toLowerCase().includes(city.toLowerCase()));
       }
 
-      // Sort: Higher tier businesses first (Ultimate > Pro > Standard)
       const tierOrder: Record<string, number> = { pro: 0, basic: 1, free: 2 };
       results.sort((a: any, b: any) => {
         const aTier = tierOrder[a.business?.subscription_tier] ?? 2;
@@ -57,6 +73,12 @@ const BrowsePage = () => {
       return results;
     },
   });
+
+  // Apply rating filter client-side
+  const filteredServices = useMemo(() => {
+    if (!services || minRating === 0 || !ratingsMap) return services;
+    return services.filter((s: any) => (ratingsMap[s.business_id] ?? 0) >= minRating);
+  }, [services, minRating, ratingsMap]);
 
   return (
     <div className="pb-20">
