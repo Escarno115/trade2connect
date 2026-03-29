@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceCard } from "@/components/ServiceCard";
 import { CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const BrowsePage = () => {
@@ -16,6 +16,24 @@ const BrowsePage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [city, setCity] = useState("");
+  const [minRating, setMinRating] = useState(0);
+
+  // Fetch average ratings per business
+  const { data: ratingsMap } = useQuery({
+    queryKey: ["business-ratings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("reviews").select("business_id, rating");
+      const map: Record<string, { sum: number; count: number }> = {};
+      (data ?? []).forEach((r: any) => {
+        if (!map[r.business_id]) map[r.business_id] = { sum: 0, count: 0 };
+        map[r.business_id].sum += r.rating;
+        map[r.business_id].count += 1;
+      });
+      const avg: Record<string, number> = {};
+      for (const [id, v] of Object.entries(map)) avg[id] = v.sum / v.count;
+      return avg;
+    },
+  });
 
   const { data: services, isLoading } = useQuery({
     queryKey: ["browse-services", selectedCategory, search, city, priceRange],
@@ -45,7 +63,6 @@ const BrowsePage = () => {
         results = results.filter((s: any) => s.business?.city?.toLowerCase().includes(city.toLowerCase()));
       }
 
-      // Sort: Higher tier businesses first (Ultimate > Pro > Standard)
       const tierOrder: Record<string, number> = { pro: 0, basic: 1, free: 2 };
       results.sort((a: any, b: any) => {
         const aTier = tierOrder[a.business?.subscription_tier] ?? 2;
@@ -56,6 +73,12 @@ const BrowsePage = () => {
       return results;
     },
   });
+
+  // Apply rating filter client-side
+  const filteredServices = useMemo(() => {
+    if (!services || minRating === 0 || !ratingsMap) return services;
+    return services.filter((s: any) => (ratingsMap[s.business_id] ?? 0) >= minRating);
+  }, [services, minRating, ratingsMap]);
 
   return (
     <div className="pb-20">
@@ -143,8 +166,25 @@ const BrowsePage = () => {
                 />
               </div>
             </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Minimum rating</label>
+              <div className="flex gap-1 mt-1">
+                {[0, 1, 2, 3, 4, 5].map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setMinRating(r)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-xs font-medium active-scale transition-colors",
+                      minRating === r ? "bg-foreground text-background" : "bg-secondary text-secondary-foreground"
+                    )}
+                  >
+                    {r === 0 ? "Any" : <span className="flex items-center gap-0.5">{r}<Star className="h-3 w-3 fill-current" /></span>}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
-              onClick={() => { setCity(""); setPriceRange([0, 10000]); }}
+              onClick={() => { setCity(""); setPriceRange([0, 10000]); setMinRating(0); }}
               className="text-xs text-primary font-medium flex items-center gap-1"
             >
               <X className="h-3 w-3" /> Clear filters
@@ -160,9 +200,9 @@ const BrowsePage = () => {
               <div key={i} className="h-28 bg-secondary rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : services && services.length > 0 ? (
+        ) : filteredServices && filteredServices.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {services.map((service: any) => (
+            {filteredServices.map((service: any) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>
