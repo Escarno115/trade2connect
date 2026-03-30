@@ -19,7 +19,7 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">1. Acceptance of Terms</h2>
           <p>
-            By accessing or using TradeHub ("the Platform"), you agree to be bound by these Terms & Conditions.
+            By accessing or using TradeConnect ("the Platform"), you agree to be bound by these Terms & Conditions.
             If you do not agree, do not use the Platform.
           </p>
         </section>
@@ -27,8 +27,8 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">2. Platform Role</h2>
           <p>
-            TradeHub acts solely as a marketplace connecting customers with independent service businesses.
-            We facilitate bookings, payments tracking, and communication between parties. TradeHub is <strong className="text-foreground">not</strong> a
+            TradeConnect acts solely as a marketplace connecting customers with independent service businesses.
+            We facilitate bookings, payments tracking, and communication between parties. TradeConnect is <strong className="text-foreground">not</strong> a
             party to any agreement between a customer and a business.
           </p>
         </section>
@@ -36,13 +36,13 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">3. Limitation of Liability</h2>
           <p>
-            TradeHub is not responsible for the quality, safety, legality, or any aspect of the services
+            TradeConnect is not responsible for the quality, safety, legality, or any aspect of the services
             provided by businesses listed on the Platform. Any disputes, damages, injuries, losses, or
             issues arising from interactions between customers and businesses — whether occurring on or
             off the Platform — are strictly between the customer and the business.
           </p>
           <p className="mt-2">
-            <strong className="text-foreground">TradeHub shall not be held liable for any direct, indirect, incidental, consequential,
+            <strong className="text-foreground">TradeConnect shall not be held liable for any direct, indirect, incidental, consequential,
             or punitive damages</strong> arising from the use of services booked through the Platform, including
             but not limited to property damage, personal injury, financial loss, or dissatisfaction with services rendered.
           </p>
@@ -80,7 +80,7 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">7. Commission</h2>
           <p>
-            TradeHub charges a commission on completed bookings. The rate depends on the business's
+            TradeConnect charges a commission on completed bookings. The rate depends on the business's
             subscription tier: Standard (14%), Pro (7%), Ultimate (1%). Commission is calculated
             automatically upon booking completion.
           </p>
@@ -90,8 +90,8 @@ const TermsPage = () => {
           <h2 className="text-base font-semibold text-foreground mb-2">8. Dispute Resolution</h2>
           <p>
             Any disputes between customers and businesses must be resolved directly between those
-            parties. TradeHub may, at its sole discretion, assist in mediation but is under no
-            obligation to do so. TradeHub reserves the right to suspend or terminate accounts that
+            parties. TradeConnect may, at its sole discretion, assist in mediation but is under no
+            obligation to do so. TradeConnect reserves the right to suspend or terminate accounts that
             receive repeated complaints.
           </p>
         </section>
@@ -108,7 +108,7 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">10. Account Termination</h2>
           <p>
-            TradeHub reserves the right to suspend or terminate any account for violations of these
+            TradeConnect reserves the right to suspend or terminate any account for violations of these
             Terms, fraudulent activity, or any conduct deemed harmful to the Platform or its users.
           </p>
         </section>
@@ -116,7 +116,7 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">11. Indemnification</h2>
           <p>
-            You agree to indemnify and hold harmless TradeHub, its officers, directors, employees,
+            You agree to indemnify and hold harmless TradeConnect, its officers, directors, employees,
             and agents from any claims, damages, losses, or expenses arising from your use of the
             Platform or violation of these Terms.
           </p>
@@ -125,7 +125,7 @@ const TermsPage = () => {
         <section>
           <h2 className="text-base font-semibold text-foreground mb-2">12. Changes to Terms</h2>
           <p>
-            TradeHub may update these Terms at any time. Continued use of the Platform after changes
+            TradeConnect may update these Terms at any time. Continued use of the Platform after changes
             constitutes acceptance of the updated Terms.
           </p>
         </section>
@@ -133,9 +133,9 @@ const TermsPage = () => {
         <section className="bg-secondary rounded-xl p-4">
           <h2 className="text-base font-semibold text-foreground mb-2">⚠️ Important Notice</h2>
           <p className="text-xs">
-            By using TradeHub, you acknowledge and agree that <strong className="text-foreground">any problems, disputes, damages, or issues
+            By using TradeConnect, you acknowledge and agree that <strong className="text-foreground">any problems, disputes, damages, or issues
             that arise outside the Platform are strictly between the customer and the business</strong>.
-            TradeHub bears no responsibility for off-platform interactions, service quality, or any
+            TradeConnect bears no responsibility for off-platform interactions, service quality, or any
             resulting consequences.
           </p>
         </section>
