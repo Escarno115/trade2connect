@@ -22,7 +22,7 @@ const BrowsePage = () => {
   const { data: ratingsMap } = useQuery({
     queryKey: ["business-ratings"],
     queryFn: async () => {
-      const { data } = await supabase.from("reviews").select("business_id, rating");
+      const { data } = await supabase.from("reviews_public").select("business_id, rating");
       const map: Record<string, { sum: number; count: number }> = {};
       (data ?? []).forEach((r: any) => {
         if (!map[r.business_id]) map[r.business_id] = { sum: 0, count: 0 };
