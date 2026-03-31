@@ -73,11 +73,9 @@ export const ReviewsList = ({ businessId, isOwner = false }: ReviewsListProps) =
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-xs font-bold">
-                  {(review.profiles?.full_name || "?").charAt(0).toUpperCase()}
+                  C
                 </div>
-                <span className="text-xs font-medium">
-                  {review.profiles?.full_name || "Customer"}
-                </span>
+                <span className="text-xs font-medium">Customer</span>
               </div>
               <div className="flex">
                 {[1, 2, 3, 4, 5].map((star) => (
