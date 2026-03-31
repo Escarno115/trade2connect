@@ -15,9 +15,10 @@ export const ReviewsList = ({ businessId, isOwner = false }: ReviewsListProps) =
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["reviews", businessId],
     queryFn: async () => {
+      // Use reviews_public view for public reads (no customer_id exposed)
       const { data } = await supabase
-        .from("reviews")
-        .select("*, profiles:customer_id(full_name), review_responses(*)")
+        .from("reviews_public")
+        .select("*, review_responses(*)")
         .eq("business_id", businessId)
         .order("created_at", { ascending: false });
       return data ?? [];
