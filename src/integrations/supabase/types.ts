@@ -589,14 +589,12 @@ export type Database = {
           country: string | null
           cover_url: string | null
           description: string | null
-          email: string | null
           id: string | null
           is_active: boolean | null
           logo_url: string | null
           name: string | null
           office_address: string | null
           operating_hours: Json | null
-          phone: string | null
           subscription_tier:
             | Database["public"]["Enums"]["subscription_tier"]
             | null
@@ -609,14 +607,12 @@ export type Database = {
           country?: string | null
           cover_url?: string | null
           description?: string | null
-          email?: string | null
           id?: string | null
           is_active?: boolean | null
           logo_url?: string | null
           name?: string | null
           office_address?: string | null
           operating_hours?: Json | null
-          phone?: string | null
           subscription_tier?:
             | Database["public"]["Enums"]["subscription_tier"]
             | null
@@ -629,14 +625,12 @@ export type Database = {
           country?: string | null
           cover_url?: string | null
           description?: string | null
-          email?: string | null
           id?: string | null
           is_active?: boolean | null
           logo_url?: string | null
           name?: string | null
           office_address?: string | null
           operating_hours?: Json | null
-          phone?: string | null
           subscription_tier?:
             | Database["public"]["Enums"]["subscription_tier"]
             | null

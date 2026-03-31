@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, MapPin, Phone, Mail, Star, Crown, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MapPin, Star, Crown, Clock } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ReviewsList } from "@/components/ReviewsList";
@@ -108,18 +108,6 @@ const BusinessProfilePage = () => {
         {business.description && (
           <p className="text-sm text-muted-foreground">{business.description}</p>
         )}
-        <div className="flex gap-3 mt-3">
-          {business.phone && (
-            <a href={`tel:${business.phone}`} className="flex items-center gap-1.5 text-xs text-primary font-medium">
-              <Phone className="h-3.5 w-3.5" /> {business.phone}
-            </a>
-          )}
-          {business.email && (
-            <a href={`mailto:${business.email}`} className="flex items-center gap-1.5 text-xs text-primary font-medium">
-              <Mail className="h-3.5 w-3.5" /> {business.email}
-            </a>
-          )}
-        </div>
 
         {/* Office Address */}
         {(business as any).office_address && (
