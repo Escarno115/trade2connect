@@ -108,18 +108,6 @@ const BusinessProfilePage = () => {
         {business.description && (
           <p className="text-sm text-muted-foreground">{business.description}</p>
         )}
-        <div className="flex gap-3 mt-3">
-          {business.phone && (
-            <a href={`tel:${business.phone}`} className="flex items-center gap-1.5 text-xs text-primary font-medium">
-              <Phone className="h-3.5 w-3.5" /> {business.phone}
-            </a>
-          )}
-          {business.email && (
-            <a href={`mailto:${business.email}`} className="flex items-center gap-1.5 text-xs text-primary font-medium">
-              <Mail className="h-3.5 w-3.5" /> {business.email}
-            </a>
-          )}
-        </div>
 
         {/* Office Address */}
         {(business as any).office_address && (
