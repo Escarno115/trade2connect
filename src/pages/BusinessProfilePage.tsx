@@ -18,7 +18,7 @@ const BusinessProfilePage = () => {
     queryKey: ["business", id],
     queryFn: async () => {
       const { data } = await supabase
-        .from("businesses")
+        .from("businesses_public")
         .select("*")
         .eq("id", id!)
         .maybeSingle();

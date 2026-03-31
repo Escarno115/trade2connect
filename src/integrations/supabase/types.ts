@@ -364,6 +364,13 @@ export type Database = {
             referencedRelation: "reviews"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "review_responses_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "reviews_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       reviews: {
@@ -582,12 +589,17 @@ export type Database = {
           country: string | null
           cover_url: string | null
           description: string | null
+          email: string | null
           id: string | null
           is_active: boolean | null
           logo_url: string | null
           name: string | null
           office_address: string | null
           operating_hours: Json | null
+          phone: string | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
           verification_status:
             | Database["public"]["Enums"]["verification_status"]
             | null
@@ -597,12 +609,17 @@ export type Database = {
           country?: string | null
           cover_url?: string | null
           description?: string | null
+          email?: string | null
           id?: string | null
           is_active?: boolean | null
           logo_url?: string | null
           name?: string | null
           office_address?: string | null
           operating_hours?: Json | null
+          phone?: string | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
           verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
@@ -612,17 +629,71 @@ export type Database = {
           country?: string | null
           cover_url?: string | null
           description?: string | null
+          email?: string | null
           id?: string | null
           is_active?: boolean | null
           logo_url?: string | null
           name?: string | null
           office_address?: string | null
           operating_hours?: Json | null
+          phone?: string | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
           verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
         }
         Relationships: []
+      }
+      reviews_public: {
+        Row: {
+          booking_id: string | null
+          business_id: string | null
+          comment: string | null
+          created_at: string | null
+          id: string | null
+          rating: number | null
+        }
+        Insert: {
+          booking_id?: string | null
+          business_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+        }
+        Update: {
+          booking_id?: string | null
+          business_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {

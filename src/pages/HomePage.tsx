@@ -13,10 +13,8 @@ const HomePage = () => {
     queryKey: ["featured-businesses"],
     queryFn: async () => {
       const { data } = await supabase
-        .from("businesses")
+        .from("businesses_public")
         .select("id, name, description, city, verification_status, subscription_tier, logo_url")
-        .eq("verification_status", "approved")
-        .eq("is_active", true)
         .order("subscription_tier", { ascending: false })
         .limit(6);
       return data ?? [];
