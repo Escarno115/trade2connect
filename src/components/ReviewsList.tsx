@@ -15,9 +15,10 @@ export const ReviewsList = ({ businessId, isOwner = false }: ReviewsListProps) =
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["reviews", businessId],
     queryFn: async () => {
+      // Use reviews_public view for public reads (no customer_id exposed)
       const { data } = await supabase
-        .from("reviews")
-        .select("*, profiles:customer_id(full_name), review_responses(*)")
+        .from("reviews_public")
+        .select("*, review_responses(*)")
         .eq("business_id", businessId)
         .order("created_at", { ascending: false });
       return data ?? [];
@@ -72,11 +73,9 @@ export const ReviewsList = ({ businessId, isOwner = false }: ReviewsListProps) =
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-xs font-bold">
-                  {(review.profiles?.full_name || "?").charAt(0).toUpperCase()}
+                  C
                 </div>
-                <span className="text-xs font-medium">
-                  {review.profiles?.full_name || "Customer"}
-                </span>
+                <span className="text-xs font-medium">Customer</span>
               </div>
               <div className="flex">
                 {[1, 2, 3, 4, 5].map((star) => (
