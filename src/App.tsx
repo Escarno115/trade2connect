@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -5,21 +6,22 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { BottomNav } from "@/components/BottomNav";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import HomePage from "./pages/HomePage";
-import BrowsePage from "./pages/BrowsePage";
-import BusinessProfilePage from "./pages/BusinessProfilePage";
-import BookServicePage from "./pages/BookServicePage";
-import BookingsPage from "./pages/BookingsPage";
-import AccountPage from "./pages/AccountPage";
-import AuthPage from "./pages/AuthPage";
-import BusinessDashboard from "./pages/BusinessDashboard";
-import AdminPanel from "./pages/AdminPanel";
-import CommissionHistoryPage from "./pages/CommissionHistoryPage";
-import BusinessAnalyticsPage from "./pages/BusinessAnalyticsPage";
-import MessagesPage from "./pages/MessagesPage";
-import ChatPage from "./pages/ChatPage";
-import NotFound from "./pages/NotFound";
-import TermsPage from "./pages/TermsPage";
+
+const HomePage = lazy(() => import("./pages/HomePage"));
+const BrowsePage = lazy(() => import("./pages/BrowsePage"));
+const BusinessProfilePage = lazy(() => import("./pages/BusinessProfilePage"));
+const BookServicePage = lazy(() => import("./pages/BookServicePage"));
+const BookingsPage = lazy(() => import("./pages/BookingsPage"));
+const AccountPage = lazy(() => import("./pages/AccountPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const BusinessDashboard = lazy(() => import("./pages/BusinessDashboard"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const CommissionHistoryPage = lazy(() => import("./pages/CommissionHistoryPage"));
+const BusinessAnalyticsPage = lazy(() => import("./pages/BusinessAnalyticsPage"));
+const MessagesPage = lazy(() => import("./pages/MessagesPage"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
 
 const queryClient = new QueryClient();
 
