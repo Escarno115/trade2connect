@@ -147,10 +147,13 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
                     {isCurrentTier && <Badge className="ml-2 text-[10px] border-0 bg-primary/10 text-primary">Current</Badge>}
                     {pendingRequest && <Badge className="ml-2 text-[10px] border-0 bg-warning/10 text-warning">Pending</Badge>}
                   </div>
-                  <span className="text-sm font-bold">
-                    ${price}
-                    <span className="text-xs text-muted-foreground font-normal">/{billingCycle === "weekly" ? "wk" : "mo"}</span>
-                  </span>
+                  <div className="text-right">
+                    <span className="text-sm font-bold">
+                      ${price}
+                      <span className="text-xs text-muted-foreground font-normal">/{billingCycle === "weekly" ? "wk" : "mo"}</span>
+                    </span>
+                    <p className="text-[10px] text-muted-foreground">+ {TIER_COMMISSIONS[tier]}% commission per booking</p>
+                  </div>
                 </div>
                 <ul className="mt-1.5 space-y-0.5">
                   {TIER_FEATURES[tier].map((f) => (
