@@ -21,6 +21,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [officeAddress, setOfficeAddress] = useState("");
+  const [serviceAreas, setServiceAreas] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
   const countryConfig = getCountryByCode(country);
@@ -57,7 +58,8 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         phone: phone || null,
         email: email || null,
         office_address: officeAddress || null,
-      });
+        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -133,6 +135,11 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
             <div>
               <Label className="text-xs">Office / Workshop Address</Label>
               <Textarea value={officeAddress} onChange={(e) => setOfficeAddress(e.target.value)} rows={2} className="mt-1" placeholder="Full address of your workplace" />
+            </div>
+            <div>
+              <Label className="text-xs">Areas of Service</Label>
+              <Input value={serviceAreas} onChange={(e) => setServiceAreas(e.target.value)} className="mt-1" placeholder="e.g. Downtown, Westside, North County" />
+              <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve</p>
             </div>
 
             {/* Show required documents for this country */}

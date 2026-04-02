@@ -103,6 +103,7 @@ export type Database = {
           owner_id: string
           phone: string | null
           phone_verified: boolean
+          service_areas: string[] | null
           subscription_expires_at: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
@@ -127,6 +128,7 @@ export type Database = {
           owner_id: string
           phone?: string | null
           phone_verified?: boolean
+          service_areas?: string[] | null
           subscription_expires_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
@@ -151,6 +153,7 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           phone_verified?: boolean
+          service_areas?: string[] | null
           subscription_expires_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
@@ -595,6 +598,7 @@ export type Database = {
           name: string | null
           office_address: string | null
           operating_hours: Json | null
+          service_areas: string[] | null
           subscription_tier:
             | Database["public"]["Enums"]["subscription_tier"]
             | null
@@ -613,6 +617,7 @@ export type Database = {
           name?: string | null
           office_address?: string | null
           operating_hours?: Json | null
+          service_areas?: string[] | null
           subscription_tier?:
             | Database["public"]["Enums"]["subscription_tier"]
             | null
@@ -631,6 +636,7 @@ export type Database = {
           name?: string | null
           office_address?: string | null
           operating_hours?: Json | null
+          service_areas?: string[] | null
           subscription_tier?:
             | Database["public"]["Enums"]["subscription_tier"]
             | null

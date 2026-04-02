@@ -31,6 +31,10 @@ const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 
 const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequests, requestUpgradeMutation, queryClient }: any) => {
   const [officeAddress, setOfficeAddress] = useState((business as any).office_address ?? "");
+  const [serviceAreas, setServiceAreas] = useState(() => {
+    const areas = (business as any).service_areas ?? [];
+    return Array.isArray(areas) ? areas.join(", ") : "";
+  });
   const [hours, setHours] = useState<Record<string, { open: string; close: string; closed: boolean }>>(() => {
     const saved = (business as any).operating_hours ?? {};
     const defaults: any = {};
@@ -45,6 +49,7 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
       const { error } = await supabase.from("businesses").update({
         office_address: officeAddress,
         operating_hours: hours,
+        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
       } as any).eq("id", business.id);
       if (error) throw error;
     },
@@ -85,6 +90,18 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
           rows={2}
           className="text-sm"
         />
+      </div>
+
+      {/* Service Areas */}
+      <div className="bg-card rounded-xl border p-4">
+        <Label className="text-xs flex items-center gap-1.5 mb-2"><MapPin className="h-3.5 w-3.5" /> Areas of Service</Label>
+        <Input
+          value={serviceAreas}
+          onChange={(e) => setServiceAreas(e.target.value)}
+          placeholder="e.g. Downtown, Westside, North County"
+          className="text-sm"
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">Comma-separated list of areas you serve</p>
       </div>
 
       {/* Operating Hours */}
