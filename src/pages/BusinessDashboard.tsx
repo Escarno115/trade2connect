@@ -49,6 +49,7 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
       const { error } = await supabase.from("businesses").update({
         office_address: officeAddress,
         operating_hours: hours,
+        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
       } as any).eq("id", business.id);
       if (error) throw error;
     },
