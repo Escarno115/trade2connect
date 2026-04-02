@@ -92,6 +92,18 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
         />
       </div>
 
+      {/* Service Areas */}
+      <div className="bg-card rounded-xl border p-4">
+        <Label className="text-xs flex items-center gap-1.5 mb-2"><MapPin className="h-3.5 w-3.5" /> Areas of Service</Label>
+        <Input
+          value={serviceAreas}
+          onChange={(e) => setServiceAreas(e.target.value)}
+          placeholder="e.g. Downtown, Westside, North County"
+          className="text-sm"
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">Comma-separated list of areas you serve</p>
+      </div>
+
       {/* Operating Hours */}
       <div className="bg-card rounded-xl border p-4">
         <Label className="text-xs flex items-center gap-1.5 mb-3"><ClockIcon className="h-3.5 w-3.5" /> Hours of Operation</Label>
