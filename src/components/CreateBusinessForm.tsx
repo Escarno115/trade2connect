@@ -58,7 +58,8 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         phone: phone || null,
         email: email || null,
         office_address: officeAddress || null,
-      });
+        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
