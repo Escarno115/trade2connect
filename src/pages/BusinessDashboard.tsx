@@ -31,6 +31,10 @@ const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 
 const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequests, requestUpgradeMutation, queryClient }: any) => {
   const [officeAddress, setOfficeAddress] = useState((business as any).office_address ?? "");
+  const [serviceAreas, setServiceAreas] = useState(() => {
+    const areas = (business as any).service_areas ?? [];
+    return Array.isArray(areas) ? areas.join(", ") : "";
+  });
   const [hours, setHours] = useState<Record<string, { open: string; close: string; closed: boolean }>>(() => {
     const saved = (business as any).operating_hours ?? {};
     const defaults: any = {};
