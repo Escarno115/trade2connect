@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,49 +23,65 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const roleRequestId = useRef(0);
 
   const fetchRole = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
-    return data?.role ?? "customer";
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data?.role ?? "customer";
+    } catch {
+      return "customer";
+    }
   }, []);
 
   useEffect(() => {
     let mounted = true;
 
-    // 1. Restore session from storage first — fast path
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+    const resolveRole = (userId: string) => {
+      const requestId = ++roleRequestId.current;
+      setLoading(true);
+      setUserRole(null);
+
+      void fetchRole(userId).then((role) => {
+        if (!mounted || roleRequestId.current !== requestId) return;
+        setUserRole(role);
+        setLoading(false);
+      });
+    };
+
+    const applySession = (nextSession: Session | null) => {
       if (!mounted) return;
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) {
-        const role = await fetchRole(s.user.id);
-        if (mounted) setUserRole(role);
+
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+
+      if (!nextSession?.user) {
+        roleRequestId.current += 1;
+        setUserRole(null);
+        setLoading(false);
+        return;
       }
-      if (mounted) setLoading(false);
+
+      resolveRole(nextSession.user.id);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      applySession(nextSession);
     });
 
-    // 2. Listen for changes (sign-in, sign-out, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, s) => {
-        if (!mounted) return;
-        setSession(s);
-        setUser(s?.user ?? null);
-        if (s?.user) {
-          const role = await fetchRole(s.user.id);
-          if (mounted) setUserRole(role);
-        } else {
-          setUserRole(null);
-        }
-        if (mounted) setLoading(false);
-      }
-    );
+    void supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      applySession(currentSession);
+    });
 
     return () => {
       mounted = false;
+      roleRequestId.current += 1;
       subscription.unsubscribe();
     };
   }, [fetchRole]);

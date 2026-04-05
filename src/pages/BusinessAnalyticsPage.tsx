@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, TrendingUp, DollarSign, BarChart3, Star } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
@@ -9,17 +10,18 @@ import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 const CHART_COLORS = ["hsl(160, 84%, 39%)", "hsl(160, 84%, 55%)", "hsl(160, 84%, 70%)", "hsl(25, 95%, 53%)", "hsl(25, 95%, 70%)"];
 
 const BusinessAnalyticsPage = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const { data: business } = useQuery({
+  const { data: business, isLoading: businessLoading } = useQuery({
     queryKey: ["my-business", user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("businesses")
         .select("*")
         .eq("owner_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
@@ -50,7 +52,33 @@ const BusinessAnalyticsPage = () => {
     enabled: !!business,
   });
 
-  if (!user || !business) return null;
+  if (authLoading || (user && businessLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen pb-20 px-6 text-center">
+        <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
+        <h2 className="text-lg font-bold">Sign in to view analytics</h2>
+        <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
+      </div>
+    );
+  }
+
+  if (!business) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen pb-20 px-6 text-center">
+        <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
+        <h2 className="text-lg font-bold">Create your business first</h2>
+        <Button className="mt-4" onClick={() => navigate("/dashboard")}>Open Dashboard</Button>
+      </div>
+    );
+  }
 
   // Monthly bookings data (last 6 months)
   const monthlyData = Array.from({ length: 6 }, (_, i) => {

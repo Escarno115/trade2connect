@@ -24,13 +24,13 @@ const AuthPage = () => {
 
   // Redirect already-authenticated users based on role
   useEffect(() => {
-    if (!authLoading && user && userRole) {
+    if (!authLoading && user) {
       if (userRole === "business") {
         navigate("/dashboard", { replace: true });
       } else if (userRole === "admin") {
         navigate("/admin", { replace: true });
       } else {
-        navigate("/", { replace: true });
+        navigate("/account", { replace: true });
       }
     }
   }, [user, userRole, authLoading, navigate]);
@@ -44,7 +44,7 @@ const AuthPage = () => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back!");
-        // Redirect is handled by the useEffect once role loads
+        navigate("/account", { replace: true });
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -56,7 +56,7 @@ const AuthPage = () => {
         });
         if (error) throw error;
         toast.success("Account created! You're all set.");
-        // Redirect is handled by the useEffect once role loads
+        navigate("/account", { replace: true });
       }
     } catch (error: any) {
       toast.error(error.message);

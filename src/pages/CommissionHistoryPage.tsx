@@ -13,14 +13,15 @@ const CommissionHistoryPage = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const { data: business } = useQuery({
+  const { data: business, isLoading: businessLoading } = useQuery({
     queryKey: ["my-business", user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("businesses")
         .select("*")
         .eq("owner_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
@@ -29,18 +30,44 @@ const CommissionHistoryPage = () => {
   const { data: completedBookings, isLoading } = useQuery({
     queryKey: ["commission-history", business?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("bookings")
-        .select("*, services(title), profiles:customer_id(full_name)")
+        .select("*, services(title)")
         .eq("business_id", business!.id)
         .eq("status", "completed")
         .order("updated_at", { ascending: false });
-      return data ?? [];
+
+      if (error) throw error;
+
+      const customerIds = Array.from(new Set((data ?? []).map((booking: any) => booking.customer_id).filter(Boolean)));
+      let profileMap = new Map<string, string>();
+
+      if (customerIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", customerIds);
+
+        if (profilesError) throw profilesError;
+
+        profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name]));
+      }
+
+      return (data ?? []).map((booking: any) => ({
+        ...booking,
+        customerName: profileMap.get(booking.customer_id) ?? "Customer",
+      }));
     },
     enabled: !!business,
   });
 
-  if (authLoading) return null;
+  if (authLoading || (user && businessLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -48,6 +75,16 @@ const CommissionHistoryPage = () => {
         <Receipt className="h-12 w-12 text-muted-foreground mb-4" />
         <h2 className="text-lg font-bold">Sign in to view commissions</h2>
         <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
+      </div>
+    );
+  }
+
+  if (!business) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen pb-20 px-6 text-center">
+        <Receipt className="h-12 w-12 text-muted-foreground mb-4" />
+        <h2 className="text-lg font-bold">Set up your business first</h2>
+        <Button className="mt-4" onClick={() => navigate("/dashboard")}>Open Dashboard</Button>
       </div>
     );
   }
@@ -106,7 +143,7 @@ const CommissionHistoryPage = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold truncate">{b.services?.title}</h3>
-                    <p className="text-[11px] text-muted-foreground">{(b.profiles as any)?.full_name ?? "Customer"}</p>
+                    <p className="text-[11px] text-muted-foreground">{b.customerName}</p>
                     <p className="text-[11px] text-muted-foreground">{format(new Date(b.updated_at), "MMM d, yyyy")}</p>
                   </div>
                   <div className="text-right shrink-0">
