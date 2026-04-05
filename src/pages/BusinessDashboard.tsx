@@ -229,7 +229,7 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
 };
 
 const BusinessDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"services" | "bookings" | "portfolio" | "reviews" | "profile" | "invoices">("services");
@@ -242,14 +242,21 @@ const BusinessDashboard = () => {
   const [newPrice, setNewPrice] = useState("");
   const [newCategory, setNewCategory] = useState<ServiceCategory>("plumbing");
 
-  const { data: business } = useQuery({
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth?role=business", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
+
+  const { data: business, isLoading: businessLoading } = useQuery({
     queryKey: ["my-business", user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("businesses")
         .select("*")
         .eq("owner_id", user!.id)
         .maybeSingle();
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
@@ -271,12 +278,32 @@ const BusinessDashboard = () => {
   const { data: bookings } = useQuery({
     queryKey: ["business-bookings", business?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("bookings")
-        .select("*, services(title), profiles:customer_id(full_name)")
+        .select("*, services(title)")
         .eq("business_id", business!.id)
         .order("created_at", { ascending: false });
-      return data ?? [];
+
+      if (error) throw error;
+
+      const customerIds = Array.from(new Set((data ?? []).map((booking: any) => booking.customer_id).filter(Boolean)));
+      let profileMap = new Map<string, string>();
+
+      if (customerIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", customerIds);
+
+        if (profilesError) throw profilesError;
+
+        profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name]));
+      }
+
+      return (data ?? []).map((booking: any) => ({
+        ...booking,
+        customerName: profileMap.get(booking.customer_id) ?? "Customer",
+      }));
     },
     enabled: !!business,
   });
@@ -411,9 +438,20 @@ const BusinessDashboard = () => {
     },
   });
 
+  if (authLoading || (user && businessLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   if (!user) {
-    navigate("/auth?role=business");
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
   if (!business) {
@@ -565,7 +603,7 @@ const BusinessDashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-sm font-semibold">{b.services?.title}</h3>
-                    <p className="text-xs text-muted-foreground">{(b.profiles as any)?.full_name ?? "Customer"}</p>
+                    <p className="text-xs text-muted-foreground">{b.customerName}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{b.scheduled_date} at {b.scheduled_time}</p>
                   </div>
                   <Badge className={cn("text-[10px] border-0",

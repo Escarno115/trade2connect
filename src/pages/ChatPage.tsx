@@ -11,36 +11,56 @@ import { format } from "date-fns";
 
 const ChatPage = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data: booking } = useQuery({
+  const { data: booking, isLoading: bookingLoading } = useQuery({
     queryKey: ["chat-booking", bookingId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("bookings")
-        .select("*, services(title), businesses(name, owner_id), profiles:customer_id(full_name)")
+        .select("*, services(title), businesses(name, owner_id)")
         .eq("id", bookingId!)
         .maybeSingle();
-      return data;
+
+      if (error) throw error;
+      if (!data) return null;
+
+      let customerName = "Customer";
+
+      if (data.customer_id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", data.customer_id)
+          .maybeSingle();
+
+        customerName = profile?.full_name || customerName;
+      }
+
+      return {
+        ...data,
+        customerName,
+      };
     },
-    enabled: !!bookingId,
+    enabled: !!bookingId && !!user,
   });
 
-  const { data: messages } = useQuery({
+  const { data: messages, isLoading: messagesLoading } = useQuery({
     queryKey: ["booking-messages", bookingId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("messages")
-        .select("*, profiles:sender_id(full_name)")
+        .select("*")
         .eq("booking_id", bookingId!)
         .order("created_at", { ascending: true });
+      if (error) throw error;
       return data ?? [];
     },
-    enabled: !!bookingId,
+    enabled: !!bookingId && !!user,
   });
 
   // Realtime
@@ -92,11 +112,37 @@ const ChatPage = () => {
     },
   });
 
-  if (!user || !booking) return null;
+  if (authLoading || (user && bookingLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen pb-20 px-6">
+        <ArrowLeft className="h-12 w-12 text-muted-foreground mb-4" />
+        <h2 className="text-lg font-bold">Sign in to open messages</h2>
+        <Button className="mt-4" onClick={() => navigate("/auth")}>Sign In</Button>
+      </div>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen pb-20 px-6 text-center">
+        <h2 className="text-lg font-bold">Conversation unavailable</h2>
+        <p className="mt-1 text-sm text-muted-foreground">This booking chat could not be loaded.</p>
+        <Button variant="outline" className="mt-4" onClick={() => navigate("/messages")}>Back to Messages</Button>
+      </div>
+    );
+  }
 
   const isBusinessOwner = user.id === (booking as any).businesses?.owner_id;
   const otherName = isBusinessOwner
-    ? (booking as any).profiles?.full_name || "Customer"
+    ? (booking as any).customerName || "Customer"
     : (booking as any).businesses?.name || "Business";
 
   return (
@@ -114,7 +160,11 @@ const ChatPage = () => {
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2 bg-background">
-        {messages && messages.length > 0 ? (
+        {messagesLoading ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map((item) => <div key={item} className="h-12 rounded-2xl bg-secondary animate-pulse" />)}
+          </div>
+        ) : messages && messages.length > 0 ? (
           messages.map((msg: any) => {
             const isMine = msg.sender_id === user.id;
             return (

@@ -23,14 +23,15 @@ export const BookingChat = ({ bookingId, businessOwnerId }: BookingChatProps) =>
   const { data: messages } = useQuery({
     queryKey: ["booking-messages", bookingId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("messages")
-        .select("*, profiles:sender_id(full_name)")
+        .select("*")
         .eq("booking_id", bookingId)
         .order("created_at", { ascending: true });
+      if (error) throw error;
       return data ?? [];
     },
-    enabled: isOpen,
+    enabled: isOpen && !!user,
   });
 
   // Realtime subscription
@@ -90,8 +91,6 @@ export const BookingChat = ({ bookingId, businessOwnerId }: BookingChatProps) =>
   }, [isOpen, messages, user, bookingId, queryClient]);
 
   if (!user) return null;
-
-  const isBusinessOwner = user.id === businessOwnerId;
 
   if (!isOpen) {
     return (

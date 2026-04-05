@@ -8,35 +8,57 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const MessagesPage = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Get all bookings with messages for this user (as customer or business owner)
-  const { data: conversations, isLoading } = useQuery({
+  const { data: conversations, isLoading, error } = useQuery({
     queryKey: ["conversations", user?.id],
     queryFn: async () => {
       // Get bookings where user is customer
-      const { data: customerBookings } = await supabase
+      const { data: customerBookings, error: customerBookingsError } = await supabase
         .from("bookings")
         .select("id, services(title), businesses(name)")
         .eq("customer_id", user!.id);
+      if (customerBookingsError) throw customerBookingsError;
 
       // Get bookings where user is business owner
-      const { data: businessData } = await supabase
+      const { data: businessData, error: businessError } = await supabase
         .from("businesses")
         .select("id")
         .eq("owner_id", user!.id)
         .maybeSingle();
+      if (businessError) throw businessError;
 
       let businessBookings: any[] = [];
       if (businessData) {
-        const { data } = await supabase
+        const { data: ownedBookings, error: ownedBookingsError } = await supabase
           .from("bookings")
-          .select("id, services(title), profiles:customer_id(full_name)")
+          .select("id, customer_id, services(title)")
           .eq("business_id", businessData.id);
-        businessBookings = (data ?? []).map((b: any) => ({
+
+        if (ownedBookingsError) throw ownedBookingsError;
+
+        const customerIds = Array.from(
+          new Set((ownedBookings ?? []).map((booking: any) => booking.customer_id).filter(Boolean))
+        );
+
+        let profileMap = new Map<string, string>();
+
+        if (customerIds.length > 0) {
+          const { data: profiles, error: profilesError } = await supabase
+            .from("profiles")
+            .select("id, full_name")
+            .in("id", customerIds);
+
+          if (profilesError) throw profilesError;
+
+          profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name]));
+        }
+
+        businessBookings = (ownedBookings ?? []).map((b: any) => ({
           ...b,
-          otherName: b.profiles?.full_name || "Customer",
+          otherName: profileMap.get(b.customer_id) || "Customer",
           role: "business",
         }));
       }
@@ -53,12 +75,14 @@ const MessagesPage = () => {
       // Get last message for each booking
       const results = await Promise.all(
         allBookings.map(async (booking) => {
-          const { data: msgs } = await supabase
+          const { data: msgs, error: messagesError } = await supabase
             .from("messages")
             .select("content, created_at, sender_id, is_read")
             .eq("booking_id", booking.id)
             .order("created_at", { ascending: false })
             .limit(1);
+
+          if (messagesError) throw messagesError;
           
           const lastMsg = msgs?.[0];
           if (!lastMsg) return null;
@@ -69,6 +93,8 @@ const MessagesPage = () => {
             .eq("booking_id", booking.id)
             .eq("is_read", false)
             .neq("sender_id", user!.id);
+
+          if (unreadCount.error) throw unreadCount.error;
 
           return {
             bookingId: booking.id,
@@ -89,6 +115,14 @@ const MessagesPage = () => {
     enabled: !!user,
   });
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen pb-20 px-6">
@@ -107,7 +141,11 @@ const MessagesPage = () => {
       </div>
 
       <div className="px-4">
-        {isLoading ? (
+        {error ? (
+          <div className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
+            We couldn’t load your conversations right now.
+          </div>
+        ) : isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-secondary rounded-xl animate-pulse" />)}
           </div>

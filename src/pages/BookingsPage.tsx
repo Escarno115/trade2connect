@@ -85,7 +85,13 @@ const BookingsPage = () => {
 
   const [reviewingBookingId, setReviewingBookingId] = useState<string | null>(null);
 
-  if (authLoading) return null;
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center pb-20 px-6">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
