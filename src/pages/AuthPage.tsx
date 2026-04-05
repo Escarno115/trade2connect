@@ -44,8 +44,7 @@ const AuthPage = () => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back!");
-        // Navigate immediately; useEffect will also handle it once role loads
-        navigate("/", { replace: true });
+        // Redirect is handled by the useEffect once role loads
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -57,8 +56,7 @@ const AuthPage = () => {
         });
         if (error) throw error;
         toast.success("Account created! You're all set.");
-        // Navigate based on selected role immediately
-        navigate(role === "business" ? "/dashboard" : "/", { replace: true });
+        // Redirect is handled by the useEffect once role loads
       }
     } catch (error: any) {
       toast.error(error.message);
