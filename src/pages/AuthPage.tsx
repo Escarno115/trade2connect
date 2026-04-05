@@ -24,7 +24,7 @@ const AuthPage = () => {
 
   // Redirect already-authenticated users based on role
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user && userRole) {
       if (userRole === "business") {
         navigate("/dashboard", { replace: true });
       } else if (userRole === "admin") {

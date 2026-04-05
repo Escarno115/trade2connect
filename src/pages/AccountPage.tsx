@@ -15,9 +15,9 @@ const AccountPage = () => {
         <User className="h-12 w-12 text-muted-foreground mb-4" />
         <h2 className="text-lg font-bold">Sign in to your account</h2>
         <p className="text-sm text-muted-foreground mt-1 text-center">Manage your profile and settings</p>
-        <div className="flex gap-3 mt-4">
-          <Button onClick={() => navigate("/auth")}>Sign In</Button>
-          <Button variant="outline" onClick={() => navigate("/auth?role=business")}>Register Business</Button>
+        <div className="flex flex-col gap-3 mt-4 w-full max-w-xs">
+          <Button onClick={() => navigate("/auth")} className="w-full">Sign In</Button>
+          <Button variant="outline" onClick={() => navigate("/auth?role=business")} className="w-full">Register Business</Button>
         </div>
       </div>
     );
