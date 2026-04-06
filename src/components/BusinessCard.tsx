@@ -1,9 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, MapPin, Star, Crown } from "lucide-react";
+import { CheckCircle2, MapPin, Star, Crown, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { TIER_LABELS } from "@/lib/constants";
 
 type BusinessCardProps = {
   business: {
@@ -15,12 +14,14 @@ type BusinessCardProps = {
     subscription_tier: string;
     logo_url: string | null;
   };
+  serviceCount?: number;
+  avgRating?: number;
+  reviewCount?: number;
 };
 
-export const BusinessCard = ({ business }: BusinessCardProps) => {
+export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount }: BusinessCardProps) => {
   const navigate = useNavigate();
   const isUltimate = business.subscription_tier === "pro";
-  const isPaidTier = business.subscription_tier !== "free";
   const isVerified = business.verification_status === "approved";
 
   return (
@@ -56,9 +57,26 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
             {business.description && (
               <p className="text-xs text-muted-foreground line-clamp-2">{business.description}</p>
             )}
-            <div className="flex items-center gap-1 mt-1.5 text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              <span className="text-[11px]">{business.city}</span>
+            <div className="flex items-center gap-3 mt-1.5">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <MapPin className="h-3 w-3" />
+                <span className="text-[11px]">{business.city}</span>
+              </div>
+              {serviceCount !== undefined && serviceCount > 0 && (
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Wrench className="h-3 w-3" />
+                  <span className="text-[11px]">{serviceCount} service{serviceCount !== 1 ? "s" : ""}</span>
+                </div>
+              )}
+              {avgRating !== undefined && avgRating > 0 && (
+                <div className="flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <span className="text-[11px] font-medium">{avgRating.toFixed(1)}</span>
+                  {reviewCount !== undefined && (
+                    <span className="text-[11px] text-muted-foreground">({reviewCount})</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
