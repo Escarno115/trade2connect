@@ -17,24 +17,7 @@ const BrowsePage = () => {
   const [city, setCity] = useState("");
   const [minRating, setMinRating] = useState(0);
 
-  // Fetch average ratings per business
-  const { data: ratingsMap } = useQuery({
-    queryKey: ["business-ratings"],
-    queryFn: async () => {
-      const { data } = await supabase.from("reviews_public").select("business_id, rating");
-      const map: Record<string, { sum: number; count: number }> = {};
-      (data ?? []).forEach((r: any) => {
-        if (!map[r.business_id]) map[r.business_id] = { sum: 0, count: 0 };
-        map[r.business_id].sum += r.rating;
-        map[r.business_id].count += 1;
-      });
-      const avg: Record<string, number> = {};
-      for (const [id, v] of Object.entries(map)) avg[id] = v.sum / v.count;
-      return avg;
-    },
-  });
-
-  // When a category is selected, first find business IDs that offer that service
+  // When a category is selected, find business IDs offering that service
   const { data: categoryBusinessIds } = useQuery({
     queryKey: ["category-business-ids", selectedCategory],
     queryFn: async () => {
@@ -54,7 +37,7 @@ const BrowsePage = () => {
     queryFn: async () => {
       let query = supabase
         .from("businesses_public")
-        .select("id, name, description, city, verification_status, subscription_tier, logo_url, service_areas")
+        .select("id, name, description, city, verification_status, subscription_tier, logo_url")
         .eq("is_active", true);
 
       if (selectedCategory && categoryBusinessIds && categoryBusinessIds.length > 0) {
@@ -75,21 +58,59 @@ const BrowsePage = () => {
       }
 
       const tierOrder: Record<string, number> = { pro: 0, basic: 1, free: 2 };
-      results.sort((a: any, b: any) => {
-        const aTier = tierOrder[a.subscription_tier] ?? 2;
-        const bTier = tierOrder[b.subscription_tier] ?? 2;
-        return aTier - bTier;
-      });
+      results.sort((a: any, b: any) => (tierOrder[a.subscription_tier] ?? 2) - (tierOrder[b.subscription_tier] ?? 2));
 
       return results;
     },
-    enabled: !selectedCategory || (categoryBusinessIds !== undefined),
+    enabled: !selectedCategory || categoryBusinessIds !== undefined,
+  });
+
+  const businessIds = businesses?.map((b: any) => b.id).filter(Boolean) ?? [];
+
+  // Fetch service counts
+  const { data: serviceCounts } = useQuery({
+    queryKey: ["browse-service-counts", businessIds],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("services")
+        .select("business_id")
+        .eq("is_active", true)
+        .in("business_id", businessIds);
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((s: any) => {
+        map[s.business_id] = (map[s.business_id] || 0) + 1;
+      });
+      return map;
+    },
+    enabled: businessIds.length > 0,
+  });
+
+  // Fetch ratings
+  const { data: ratingsMap } = useQuery({
+    queryKey: ["browse-ratings", businessIds],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("reviews_public")
+        .select("business_id, rating")
+        .in("business_id", businessIds);
+      const map: Record<string, { sum: number; count: number }> = {};
+      (data ?? []).forEach((r: any) => {
+        if (!map[r.business_id]) map[r.business_id] = { sum: 0, count: 0 };
+        map[r.business_id].sum += r.rating;
+        map[r.business_id].count += 1;
+      });
+      return map;
+    },
+    enabled: businessIds.length > 0,
   });
 
   // Apply rating filter client-side
   const filteredBusinesses = useMemo(() => {
     if (!businesses || minRating === 0 || !ratingsMap) return businesses;
-    return businesses.filter((b: any) => (ratingsMap[b.id] ?? 0) >= minRating);
+    return businesses.filter((b: any) => {
+      const r = ratingsMap[b.id];
+      return r ? r.sum / r.count >= minRating : false;
+    });
   }, [businesses, minRating, ratingsMap]);
 
   return (
@@ -116,7 +137,6 @@ const BrowsePage = () => {
           </button>
         </div>
 
-        {/* Category chips */}
         <div className="flex gap-2 mt-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           <button
             onClick={() => { setSelectedCategory(""); setSearchParams({}); }}
@@ -145,7 +165,6 @@ const BrowsePage = () => {
           ))}
         </div>
 
-        {/* Filters panel */}
         {showFilters && (
           <div className="mt-3 p-3 bg-card rounded-xl border space-y-3">
             <div>
@@ -193,9 +212,18 @@ const BrowsePage = () => {
           </div>
         ) : filteredBusinesses && filteredBusinesses.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {filteredBusinesses.map((biz: any) => (
-              <BusinessCard key={biz.id} business={biz} />
-            ))}
+            {filteredBusinesses.map((biz: any) => {
+              const r = ratingsMap?.[biz.id];
+              return (
+                <BusinessCard
+                  key={biz.id}
+                  business={biz}
+                  serviceCount={serviceCounts?.[biz.id] ?? 0}
+                  avgRating={r ? r.sum / r.count : 0}
+                  reviewCount={r?.count ?? 0}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-12">
