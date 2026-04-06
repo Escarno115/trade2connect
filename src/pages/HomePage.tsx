@@ -4,33 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { BusinessCard } from "@/components/BusinessCard";
-import { ServiceCard } from "@/components/ServiceCard";
 
 const HomePage = () => {
   const navigate = useNavigate();
 
-  const { data: featuredBusinesses } = useQuery({
-    queryKey: ["featured-businesses"],
+  const { data: businesses } = useQuery({
+    queryKey: ["home-businesses"],
     queryFn: async () => {
       const { data } = await supabase
         .from("businesses_public")
-        .select("id, name, description, city, verification_status, subscription_tier, logo_url")
-        .order("subscription_tier", { ascending: false })
-        .limit(6);
-      return data ?? [];
-    },
-  });
-
-  const { data: recentServices } = useQuery({
-    queryKey: ["recent-services"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("services")
-        .select("id, title, description, base_price, category, business_id, businesses(id, name, city, verification_status, subscription_tier, logo_url)")
+        .select("id, name, description, city, verification_status, subscription_tier, logo_url, service_areas")
         .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(8);
-      return (data ?? []).map((s: any) => ({ ...s, business: s.businesses }));
+        .order("subscription_tier", { ascending: false })
+        .limit(10);
+      return data ?? [];
     },
   });
 
@@ -48,7 +35,7 @@ const HomePage = () => {
           className="mt-4 w-full flex items-center gap-3 bg-card rounded-xl px-4 py-3 active-scale"
         >
           <Search className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Search services...</span>
+          <span className="text-sm text-muted-foreground">Search businesses...</span>
         </button>
       </div>
 
@@ -58,32 +45,20 @@ const HomePage = () => {
         <CategoryGrid />
       </div>
 
-      {/* Featured Businesses */}
-      {featuredBusinesses && featuredBusinesses.length > 0 && (
+      {/* Businesses */}
+      {businesses && businesses.length > 0 && (
         <div className="px-4 mt-8">
-          <h2 className="text-lg font-bold mb-3">Featured Businesses</h2>
+          <h2 className="text-lg font-bold mb-3">Top Businesses</h2>
           <div className="flex flex-col gap-3">
-            {featuredBusinesses.map((biz) => (
+            {businesses.map((biz: any) => (
               <BusinessCard key={biz.id} business={biz} />
             ))}
           </div>
         </div>
       )}
 
-      {/* Recent Services */}
-      {recentServices && recentServices.length > 0 && (
-        <div className="px-4 mt-8">
-          <h2 className="text-lg font-bold mb-3">Recent Services</h2>
-          <div className="flex flex-col gap-3">
-            {recentServices.map((service) => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Empty state */}
-      {(!featuredBusinesses || featuredBusinesses.length === 0) && (!recentServices || recentServices.length === 0) && (
+      {(!businesses || businesses.length === 0) && (
         <div className="px-4 mt-8 text-center">
           <div className="bg-secondary rounded-2xl p-8">
             <p className="text-muted-foreground text-sm">No businesses yet. Be the first to register!</p>

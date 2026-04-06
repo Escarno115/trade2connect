@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ServiceCard } from "@/components/ServiceCard";
+import { BusinessCard } from "@/components/BusinessCard";
 import { CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X, Star } from "lucide-react";
@@ -14,7 +14,6 @@ const BrowsePage = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [city, setCity] = useState("");
   const [minRating, setMinRating] = useState(0);
 
@@ -35,50 +34,63 @@ const BrowsePage = () => {
     },
   });
 
-  const { data: services, isLoading } = useQuery({
-    queryKey: ["browse-services", selectedCategory, search, city, priceRange],
+  // When a category is selected, first find business IDs that offer that service
+  const { data: categoryBusinessIds } = useQuery({
+    queryKey: ["category-business-ids", selectedCategory],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("services")
+        .select("business_id")
+        .eq("is_active", true)
+        .eq("category", selectedCategory as any);
+      return [...new Set((data ?? []).map((s: any) => s.business_id))];
+    },
+    enabled: !!selectedCategory,
+  });
+
+  // Fetch businesses
+  const { data: businesses, isLoading } = useQuery({
+    queryKey: ["browse-businesses", selectedCategory, search, city, categoryBusinessIds],
     queryFn: async () => {
       let query = supabase
-        .from("services")
-        .select("id, title, description, base_price, category, business_id, businesses(id, name, city, verification_status, subscription_tier, logo_url)")
+        .from("businesses_public")
+        .select("id, name, description, city, verification_status, subscription_tier, logo_url, service_areas")
         .eq("is_active", true);
 
-      if (selectedCategory) {
-        query = query.eq("category", selectedCategory as any);
-      }
-      if (search) {
-        query = query.ilike("title", `%${search}%`);
-      }
-      if (priceRange[0] > 0) {
-        query = query.gte("base_price", priceRange[0]);
-      }
-      if (priceRange[1] < 10000) {
-        query = query.lte("base_price", priceRange[1]);
+      if (selectedCategory && categoryBusinessIds && categoryBusinessIds.length > 0) {
+        query = query.in("id", categoryBusinessIds);
+      } else if (selectedCategory && (!categoryBusinessIds || categoryBusinessIds.length === 0)) {
+        return [];
       }
 
-      const { data } = await query.order("created_at", { ascending: false }).limit(50);
-      let results = (data ?? []).map((s: any) => ({ ...s, business: s.businesses }));
+      if (search) {
+        query = query.ilike("name", `%${search}%`);
+      }
+
+      const { data } = await query.order("subscription_tier", { ascending: false }).limit(50);
+      let results = data ?? [];
 
       if (city) {
-        results = results.filter((s: any) => s.business?.city?.toLowerCase().includes(city.toLowerCase()));
+        results = results.filter((b: any) => b.city?.toLowerCase().includes(city.toLowerCase()));
       }
 
       const tierOrder: Record<string, number> = { pro: 0, basic: 1, free: 2 };
       results.sort((a: any, b: any) => {
-        const aTier = tierOrder[a.business?.subscription_tier] ?? 2;
-        const bTier = tierOrder[b.business?.subscription_tier] ?? 2;
+        const aTier = tierOrder[a.subscription_tier] ?? 2;
+        const bTier = tierOrder[b.subscription_tier] ?? 2;
         return aTier - bTier;
       });
 
       return results;
     },
+    enabled: !selectedCategory || (categoryBusinessIds !== undefined),
   });
 
   // Apply rating filter client-side
-  const filteredServices = useMemo(() => {
-    if (!services || minRating === 0 || !ratingsMap) return services;
-    return services.filter((s: any) => (ratingsMap[s.business_id] ?? 0) >= minRating);
-  }, [services, minRating, ratingsMap]);
+  const filteredBusinesses = useMemo(() => {
+    if (!businesses || minRating === 0 || !ratingsMap) return businesses;
+    return businesses.filter((b: any) => (ratingsMap[b.id] ?? 0) >= minRating);
+  }, [businesses, minRating, ratingsMap]);
 
   return (
     <div className="pb-20">
@@ -87,7 +99,7 @@ const BrowsePage = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search services..."
+              placeholder="Search businesses..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 bg-secondary border-0"
@@ -146,27 +158,6 @@ const BrowsePage = () => {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">
-                Price range: ${priceRange[0]} – ${priceRange[1] >= 10000 ? "∞" : priceRange[1]}
-              </label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  type="number"
-                  placeholder="Min"
-                  value={priceRange[0] || ""}
-                  onChange={(e) => setPriceRange([Number(e.target.value) || 0, priceRange[1]])}
-                  className="h-9 text-sm"
-                />
-                <Input
-                  type="number"
-                  placeholder="Max"
-                  value={priceRange[1] >= 10000 ? "" : priceRange[1]}
-                  onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value) || 10000])}
-                  className="h-9 text-sm"
-                />
-              </div>
-            </div>
-            <div>
               <label className="text-xs font-medium text-muted-foreground">Minimum rating</label>
               <div className="flex gap-1 mt-1">
                 {[0, 1, 2, 3, 4, 5].map((r) => (
@@ -184,7 +175,7 @@ const BrowsePage = () => {
               </div>
             </div>
             <button
-              onClick={() => { setCity(""); setPriceRange([0, 10000]); setMinRating(0); }}
+              onClick={() => { setCity(""); setMinRating(0); }}
               className="text-xs text-primary font-medium flex items-center gap-1"
             >
               <X className="h-3 w-3" /> Clear filters
@@ -200,15 +191,15 @@ const BrowsePage = () => {
               <div key={i} className="h-28 bg-secondary rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : filteredServices && filteredServices.length > 0 ? (
+        ) : filteredBusinesses && filteredBusinesses.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {filteredServices.map((service: any) => (
-              <ServiceCard key={service.id} service={service} />
+            {filteredBusinesses.map((biz: any) => (
+              <BusinessCard key={biz.id} business={biz} />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-sm">No services found</p>
+            <p className="text-muted-foreground text-sm">No businesses found</p>
             <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters</p>
           </div>
         )}
