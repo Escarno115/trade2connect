@@ -10,6 +10,7 @@ export const CATEGORIES = [
   { value: "landscaping", label: "Landscaping", icon: Trees, color: "bg-green-100 text-green-700" },
   { value: "cleaning", label: "Cleaning", icon: SprayCan, color: "bg-cyan-100 text-cyan-700" },
   { value: "hvac", label: "HVAC", icon: Wind, color: "bg-indigo-100 text-indigo-700" },
+  { value: "detailing", label: "Detailing", icon: Car, color: "bg-purple-100 text-purple-700" },
   { value: "other", label: "Other", icon: MoreHorizontal, color: "bg-gray-100 text-gray-700" },
 ] as const;
 
