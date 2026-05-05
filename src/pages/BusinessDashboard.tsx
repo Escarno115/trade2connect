@@ -189,15 +189,11 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
                 {isUpgrade && !pendingRequest && (
                   <Button
                     size="sm"
+                    variant="secondary"
                     className="w-full mt-2 text-xs"
-                    disabled={requestUpgradeMutation.isPending}
-                    onClick={() => requestUpgradeMutation.mutate({ requestedTier: tier, cycle: billingCycle })}
+                    disabled
                   >
-                    {requestUpgradeMutation.isPending ? (
-                      <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Requesting...</>
-                    ) : (
-                      <><ArrowUpCircle className="h-3 w-3 mr-1" /> Request Upgrade ({billingCycle})</>
-                    )}
+                    Available at launch
                   </Button>
                 )}
               </div>
