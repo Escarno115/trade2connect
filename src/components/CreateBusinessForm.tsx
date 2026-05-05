@@ -23,6 +23,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const [email, setEmail] = useState("");
   const [officeAddress, setOfficeAddress] = useState("");
   const [serviceAreas, setServiceAreas] = useState("");
+  const [requiresLicense, setRequiresLicense] = useState(false);
   const [phoneError, setPhoneError] = useState("");
 
   const countryConfig = getCountryByCode(country);
