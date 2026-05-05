@@ -1,4 +1,4 @@
-import { Wrench, Zap, Hammer, Building2, Paintbrush, Home, Trees, SprayCan, Wind, MoreHorizontal } from "lucide-react";
+import { Wrench, Zap, Hammer, Building2, Paintbrush, Home, Trees, SprayCan, Wind, Car, MoreHorizontal } from "lucide-react";
 
 export const CATEGORIES = [
   { value: "plumbing", label: "Plumbing", icon: Wrench, color: "bg-blue-100 text-blue-700" },
