@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
-import { COUNTRIES, getCountryByCode, validatePhone } from "@/lib/countries";
+import { COUNTRIES, getCountryByCode, validatePhone, getRequiredDocsFor } from "@/lib/countries";
+import { Switch } from "@/components/ui/switch";
 
 export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const navigate = useNavigate();
