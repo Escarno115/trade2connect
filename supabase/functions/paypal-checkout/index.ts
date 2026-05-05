@@ -137,14 +137,28 @@ Deno.serve(async (req) => {
       const captureData = await captureRes.json();
 
       if (captureData.status === "COMPLETED") {
-        // Extract invoiceId from purchase_units reference_id
-        const refId =
-          invoiceId ?? captureData.purchase_units?.[0]?.reference_id;
+        // Use ONLY PayPal-verified reference_id - never trust client-supplied invoiceId
+        const refId = captureData.purchase_units?.[0]?.reference_id;
         if (refId) {
-          await adminClient
+          // Re-verify the authenticated user owns the business linked to this invoice
+          const { data: invoice } = await adminClient
             .from("invoices")
-            .update({ status: "paid", paid_at: new Date().toISOString() })
-            .eq("id", refId);
+            .select("id, business_id, status")
+            .eq("id", refId)
+            .single();
+          if (invoice) {
+            const { data: biz } = await adminClient
+              .from("businesses")
+              .select("owner_id")
+              .eq("id", invoice.business_id)
+              .single();
+            if (biz && biz.owner_id === user.id && invoice.status !== "paid") {
+              await adminClient
+                .from("invoices")
+                .update({ status: "paid", paid_at: new Date().toISOString() })
+                .eq("id", refId);
+            }
+          }
         }
       }
 

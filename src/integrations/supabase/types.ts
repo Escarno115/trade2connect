@@ -701,6 +701,13 @@ export type Database = {
     }
     Functions: {
       generate_subscription_invoices: { Args: never; Returns: undefined }
+      get_booking_customer_summaries: {
+        Args: { _business_id: string }
+        Returns: {
+          full_name: string
+          id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
