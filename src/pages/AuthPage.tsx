@@ -13,10 +13,9 @@ const AuthPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, userRole, loading: authLoading } = useAuth();
-  const initialRole = searchParams.get("role") ?? "customer";
-
+  // Only business signups allowed for now
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState<"customer" | "business">(initialRole as any);
+  const role = "business" as const;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
