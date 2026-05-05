@@ -103,6 +103,7 @@ export type Database = {
           owner_id: string
           phone: string | null
           phone_verified: boolean
+          requires_license: boolean
           service_areas: string[] | null
           subscription_expires_at: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
@@ -128,6 +129,7 @@ export type Database = {
           owner_id: string
           phone?: string | null
           phone_verified?: boolean
+          requires_license?: boolean
           service_areas?: string[] | null
           subscription_expires_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
@@ -153,6 +155,7 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           phone_verified?: boolean
+          requires_license?: boolean
           service_areas?: string[] | null
           subscription_expires_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
@@ -725,6 +728,7 @@ export type Database = {
         | "cleaning"
         | "hvac"
         | "other"
+        | "detailing"
       subscription_tier: "free" | "basic" | "pro"
       user_role: "customer" | "business" | "admin"
       verification_status: "pending" | "approved" | "rejected"
@@ -874,6 +878,7 @@ export const Constants = {
         "cleaning",
         "hvac",
         "other",
+        "detailing",
       ],
       subscription_tier: ["free", "basic", "pro"],
       user_role: ["customer", "business", "admin"],
