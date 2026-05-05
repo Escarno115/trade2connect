@@ -223,7 +223,7 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
       </div>
 
       {/* Verification Documents Upload */}
-      <VerificationUpload businessId={business.id} userId={user!.id} country={business.country} />
+      <VerificationUpload businessId={business.id} userId={user!.id} country={business.country} requiresLicense={(business as any).requires_license ?? false} />
     </div>
   );
 };

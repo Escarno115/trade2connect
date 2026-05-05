@@ -1,4 +1,4 @@
-import { Wrench, Zap, Hammer, Building2, Paintbrush, Home, Trees, SprayCan, Wind, MoreHorizontal } from "lucide-react";
+import { Wrench, Zap, Hammer, Building2, Paintbrush, Home, Trees, SprayCan, Wind, Car, MoreHorizontal } from "lucide-react";
 
 export const CATEGORIES = [
   { value: "plumbing", label: "Plumbing", icon: Wrench, color: "bg-blue-100 text-blue-700" },
@@ -10,6 +10,7 @@ export const CATEGORIES = [
   { value: "landscaping", label: "Landscaping", icon: Trees, color: "bg-green-100 text-green-700" },
   { value: "cleaning", label: "Cleaning", icon: SprayCan, color: "bg-cyan-100 text-cyan-700" },
   { value: "hvac", label: "HVAC", icon: Wind, color: "bg-indigo-100 text-indigo-700" },
+  { value: "detailing", label: "Detailing", icon: Car, color: "bg-purple-100 text-purple-700" },
   { value: "other", label: "Other", icon: MoreHorizontal, color: "bg-gray-100 text-gray-700" },
 ] as const;
 

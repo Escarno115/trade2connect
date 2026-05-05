@@ -7,25 +7,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, FileText, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { getCountryByCode, type CountryConfig } from "@/lib/countries";
+import { getCountryByCode, getRequiredDocsFor, type RequiredDoc } from "@/lib/countries";
 
 // Fallback doc types if country not set
-const FALLBACK_DOC_TYPES = [
-  { value: "business_registration", label: "Business Registration Certificate" },
-  { value: "id_document", label: "ID Document" },
+const FALLBACK_DOC_TYPES: RequiredDoc[] = [
+  { value: "id_document", label: "ID Document", kind: "id" },
 ];
 
 type Props = {
   businessId: string;
   userId: string;
   country?: string;
+  requiresLicense?: boolean;
 };
 
-export const VerificationUpload = ({ businessId, userId, country }: Props) => {
+export const VerificationUpload = ({ businessId, userId, country, requiresLicense = false }: Props) => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const countryConfig = country ? getCountryByCode(country) : undefined;
-  const docTypes = countryConfig?.requiredDocs ?? FALLBACK_DOC_TYPES;
+  const docTypes: RequiredDoc[] = country
+    ? getRequiredDocsFor(country, requiresLicense)
+    : FALLBACK_DOC_TYPES;
   const [docType, setDocType] = useState(docTypes[0]?.value ?? "");
   const [uploading, setUploading] = useState(false);
 

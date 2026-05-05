@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
-import { COUNTRIES, getCountryByCode, validatePhone } from "@/lib/countries";
+import { COUNTRIES, getCountryByCode, validatePhone, getRequiredDocsFor } from "@/lib/countries";
+import { Switch } from "@/components/ui/switch";
 
 export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const [email, setEmail] = useState("");
   const [officeAddress, setOfficeAddress] = useState("");
   const [serviceAreas, setServiceAreas] = useState("");
+  const [requiresLicense, setRequiresLicense] = useState(false);
   const [phoneError, setPhoneError] = useState("");
 
   const countryConfig = getCountryByCode(country);
@@ -59,6 +61,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         email: email || null,
         office_address: officeAddress || null,
         service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+        requires_license: requiresLicense,
       } as any);
       if (error) throw error;
     },
@@ -142,12 +145,22 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
               <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve</p>
             </div>
 
+            <div className="flex items-start gap-3 p-3 bg-secondary rounded-xl">
+              <Switch id="req-lic" checked={requiresLicense} onCheckedChange={setRequiresLicense} />
+              <div className="flex-1">
+                <Label htmlFor="req-lic" className="text-xs font-semibold">My business requires a license or certificate</Label>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Turn this on only if your trade legally requires a license/certificate (e.g. licensed electrician, plumber, gas fitter).
+                </p>
+              </div>
+            </div>
+
             {/* Show required documents for this country */}
             {countryConfig && (
               <div className="bg-secondary rounded-xl p-3">
                 <p className="text-xs font-semibold mb-1.5">Documents required for {countryConfig.name}:</p>
                 <ul className="space-y-1">
-                  {countryConfig.requiredDocs.map((doc) => (
+                  {getRequiredDocsFor(country, requiresLicense).map((doc) => (
                     <li key={doc.value} className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                       {doc.label}

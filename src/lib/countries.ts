@@ -1,3 +1,7 @@
+export type DocKind = "license" | "id";
+
+export type RequiredDoc = { value: string; label: string; kind: DocKind };
+
 export type CountryConfig = {
   code: string;
   name: string;
@@ -5,7 +9,7 @@ export type CountryConfig = {
   phonePattern: RegExp;
   phonePlaceholder: string;
   phoneLength: string;
-  requiredDocs: { value: string; label: string }[];
+  requiredDocs: RequiredDoc[];
 };
 
 export const COUNTRIES: CountryConfig[] = [
@@ -17,8 +21,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+27812345678",
     phoneLength: "9 digits after +27",
     requiredDocs: [
-      { value: "cipc_registration", label: "CIPC Registration Certificate" },
-      { value: "sa_id", label: "South African ID Document" },
+      { value: "cipc_registration", label: "CIPC Registration Certificate", kind: "license" },
+      { value: "sa_id", label: "South African ID Document", kind: "id" },
     ],
   },
   {
@@ -29,8 +33,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+2348012345678",
     phoneLength: "10 digits after +234",
     requiredDocs: [
-      { value: "cac_registration", label: "CAC Registration Certificate" },
-      { value: "ng_id", label: "National ID Card (NIN)" },
+      { value: "cac_registration", label: "CAC Registration Certificate", kind: "license" },
+      { value: "ng_id", label: "National ID Card (NIN)", kind: "id" },
     ],
   },
   {
@@ -41,8 +45,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+254712345678",
     phoneLength: "9 digits after +254",
     requiredDocs: [
-      { value: "business_permit", label: "Business Permit / License" },
-      { value: "ke_id", label: "Kenyan National ID" },
+      { value: "business_permit", label: "Business Permit / License", kind: "license" },
+      { value: "ke_id", label: "Kenyan National ID", kind: "id" },
     ],
   },
   {
@@ -53,8 +57,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+233241234567",
     phoneLength: "9 digits after +233",
     requiredDocs: [
-      { value: "rg_certificate", label: "Registrar General Certificate" },
-      { value: "gh_id", label: "Ghana Card" },
+      { value: "rg_certificate", label: "Registrar General Certificate", kind: "license" },
+      { value: "gh_id", label: "Ghana Card", kind: "id" },
     ],
   },
   {
@@ -65,8 +69,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+12025551234",
     phoneLength: "10 digits after +1",
     requiredDocs: [
-      { value: "business_license", label: "Business License / EIN Letter" },
-      { value: "us_id", label: "Government-Issued Photo ID" },
+      { value: "business_license", label: "Business License / EIN Letter", kind: "license" },
+      { value: "us_id", label: "Government-Issued Photo ID", kind: "id" },
     ],
   },
   {
@@ -77,8 +81,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+447911123456",
     phoneLength: "10 digits after +44",
     requiredDocs: [
-      { value: "companies_house", label: "Companies House Certificate" },
-      { value: "gb_id", label: "Passport or Driving Licence" },
+      { value: "companies_house", label: "Companies House Certificate", kind: "license" },
+      { value: "gb_id", label: "Passport or Driving Licence", kind: "id" },
     ],
   },
   {
@@ -89,8 +93,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+61412345678",
     phoneLength: "9 digits after +61",
     requiredDocs: [
-      { value: "abn_registration", label: "ABN Registration" },
-      { value: "au_id", label: "Australian ID (Passport / Driver Licence)" },
+      { value: "abn_registration", label: "ABN Registration", kind: "license" },
+      { value: "au_id", label: "Australian ID (Passport / Driver Licence)", kind: "id" },
     ],
   },
   {
@@ -101,8 +105,8 @@ export const COUNTRIES: CountryConfig[] = [
     phonePlaceholder: "+919876543210",
     phoneLength: "10 digits after +91",
     requiredDocs: [
-      { value: "gstin_certificate", label: "GSTIN / Udyam Registration" },
-      { value: "in_id", label: "Aadhaar Card or PAN Card" },
+      { value: "gstin_certificate", label: "GSTIN / Udyam Registration", kind: "license" },
+      { value: "in_id", label: "Aadhaar Card or PAN Card", kind: "id" },
     ],
   },
 ];
@@ -114,4 +118,15 @@ export const validatePhone = (country: string, phone: string): boolean => {
   const config = getCountryByCode(country);
   if (!config) return phone.length >= 8;
   return config.phonePattern.test(phone);
+};
+
+export const getRequiredDocsFor = (
+  country: string,
+  requiresLicense: boolean,
+): RequiredDoc[] => {
+  const config = getCountryByCode(country);
+  if (!config) return [];
+  return requiresLicense
+    ? config.requiredDocs
+    : config.requiredDocs.filter((d) => d.kind !== "license");
 };
