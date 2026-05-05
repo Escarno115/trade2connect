@@ -80,25 +80,21 @@ const AuthPage = () => {
           <span className="text-xl font-bold"><span className="text-xl font-bold">TradeConnect</span></span>
         </div>
 
-        <h1 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create account"}</h1>
+        <h1 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Register your business"}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {isLogin ? "Sign in to continue" : "Join as a customer or business"}
+          {isLogin ? "Sign in to continue" : "We're onboarding businesses ahead of our customer launch"}
         </p>
 
         {!isLogin && (
-          <div className="flex gap-2 mt-4">
-            {(["customer", "business"] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                className={cn(
-                  "flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors active-scale",
-                  role === r ? "bg-foreground text-background" : "bg-secondary text-secondary-foreground"
-                )}
-              >
-                {r === "customer" ? "Customer" : "Business"}
-              </button>
-            ))}
+          <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-foreground space-y-1.5">
+            <p className="font-semibold text-primary">🚀 Free during launch phase</p>
+            <p className="text-muted-foreground">
+              We're currently populating the platform with quality trade businesses so customers find a strong marketplace at launch.
+              Registration and listings are <span className="font-medium text-foreground">100% free for now</span>.
+            </p>
+            <p className="text-muted-foreground">
+              Subscription plans and commission will be introduced in a future update — early businesses get priority placement.
+            </p>
           </div>
         )}
 
