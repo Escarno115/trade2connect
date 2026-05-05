@@ -135,6 +135,13 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
       {/* Subscription Plans */}
       <div>
         <h3 className="text-sm font-semibold mb-2">Subscription Plans</h3>
+        <div className="mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs space-y-1">
+          <p className="font-semibold text-primary">Subscriptions on hold — free for now 🎉</p>
+          <p className="text-muted-foreground">
+            We're populating the platform with businesses ahead of our customer launch. All plans are free and no commission is charged at this time.
+            Pricing below is shown as a preview — it will only apply when we officially roll out subscriptions in a future update.
+          </p>
+        </div>
         <div className="flex gap-1 bg-secondary rounded-lg p-0.5 mb-3">
           {(["monthly", "weekly"] as const).map((cycle) => (
             <button
