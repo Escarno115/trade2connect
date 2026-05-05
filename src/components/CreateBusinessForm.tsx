@@ -61,6 +61,7 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         email: email || null,
         office_address: officeAddress || null,
         service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+        requires_license: requiresLicense,
       } as any);
       if (error) throw error;
     },
