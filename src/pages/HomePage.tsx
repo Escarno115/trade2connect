@@ -58,6 +58,22 @@ const HomePage = () => {
     enabled: businessIds.length > 0,
   });
 
+  const { data: responseMap } = useQuery({
+    queryKey: ["home-response-stats", businessIds],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("business_response_stats")
+        .select("business_id, avg_response_seconds")
+        .in("business_id", businessIds);
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        if (r.avg_response_seconds != null) map[r.business_id] = r.avg_response_seconds;
+      });
+      return map;
+    },
+    enabled: businessIds.length > 0,
+  });
+
   return (
     <div className="pb-20">
       <div className="bg-primary px-4 pt-12 pb-8 rounded-b-3xl">
