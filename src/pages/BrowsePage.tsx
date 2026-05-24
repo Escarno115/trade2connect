@@ -237,6 +237,7 @@ const BrowsePage = () => {
                   serviceCount={serviceCounts?.[biz.id] ?? 0}
                   avgRating={r ? r.sum / r.count : 0}
                   reviewCount={r?.count ?? 0}
+                  avgResponseSeconds={responseMap?.[biz.id] ?? null}
                 />
               );
             })}
