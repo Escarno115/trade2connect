@@ -145,18 +145,26 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
               <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve</p>
             </div>
 
-            <div className="flex items-start gap-3 p-3 bg-secondary rounded-xl">
-              <Switch id="req-lic" checked={requiresLicense} onCheckedChange={setRequiresLicense} />
-              <div className="flex-1">
-                <Label htmlFor="req-lic" className="text-xs font-semibold">My business requires a license or certificate</Label>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  Turn this on only if your trade legally requires a license/certificate (e.g. licensed electrician, plumber, gas fitter).
+            {!VERIFICATION_DOCS_PAUSED && (
+              <div className="flex items-start gap-3 p-3 bg-secondary rounded-xl">
+                <Switch id="req-lic" checked={requiresLicense} onCheckedChange={setRequiresLicense} />
+                <div className="flex-1">
+                  <Label htmlFor="req-lic" className="text-xs font-semibold">My business requires a license or certificate</Label>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Turn this on only if your trade legally requires a license/certificate (e.g. licensed electrician, plumber, gas fitter).
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {VERIFICATION_DOCS_PAUSED ? (
+              <div className="bg-primary/10 rounded-xl p-3">
+                <p className="text-xs font-semibold mb-1">Document verification is paused</p>
+                <p className="text-[10px] text-muted-foreground">
+                  You don't need to upload an ID or license to register right now. We'll request these documents before we launch to customers.
                 </p>
               </div>
-            </div>
-
-            {/* Show required documents for this country */}
-            {countryConfig && (
+            ) : countryConfig && (
               <div className="bg-secondary rounded-xl p-3">
                 <p className="text-xs font-semibold mb-1.5">Documents required for {countryConfig.name}:</p>
                 <ul className="space-y-1">
