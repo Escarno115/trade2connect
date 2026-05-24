@@ -7,12 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, FileText, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { getCountryByCode, getRequiredDocsFor, type RequiredDoc } from "@/lib/countries";
-
-// Fallback doc types if country not set
-const FALLBACK_DOC_TYPES: RequiredDoc[] = [
-  { value: "id_document", label: "ID Document", kind: "id" },
-];
+import { getCountryByCode, getRequiredDocsFor, VERIFICATION_DOCS_PAUSED, type RequiredDoc } from "@/lib/countries";
 
 type Props = {
   businessId: string;
