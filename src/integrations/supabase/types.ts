@@ -84,6 +84,45 @@ export type Database = {
           },
         ]
       }
+      business_response_stats: {
+        Row: {
+          avg_response_seconds: number | null
+          business_id: string
+          replied_count: number
+          total_response_seconds: number
+          updated_at: string
+        }
+        Insert: {
+          avg_response_seconds?: number | null
+          business_id: string
+          replied_count?: number
+          total_response_seconds?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_response_seconds?: number | null
+          business_id?: string
+          replied_count?: number
+          total_response_seconds?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_response_stats_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_response_stats_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           address: string | null

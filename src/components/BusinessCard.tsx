@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, MapPin, Star, Crown, Wrench } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CheckCircle2, MapPin, Star, Crown, Wrench, Zap } from "lucide-react";
+import { cn, formatResponseTime } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
 type BusinessCardProps = {
@@ -17,12 +17,14 @@ type BusinessCardProps = {
   serviceCount?: number;
   avgRating?: number;
   reviewCount?: number;
+  avgResponseSeconds?: number | null;
 };
 
-export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount }: BusinessCardProps) => {
+export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount, avgResponseSeconds }: BusinessCardProps) => {
   const navigate = useNavigate();
   const isUltimate = business.subscription_tier === "pro";
   const isVerified = business.verification_status === "approved";
+  const responseLabel = formatResponseTime(avgResponseSeconds);
 
   return (
     <Card
@@ -75,6 +77,12 @@ export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount }:
                   {reviewCount !== undefined && (
                     <span className="text-[11px] text-muted-foreground">({reviewCount})</span>
                   )}
+                </div>
+              )}
+              {responseLabel && (
+                <div className="flex items-center gap-1 text-primary">
+                  <Zap className="h-3 w-3 fill-primary" />
+                  <span className="text-[11px] font-medium">{responseLabel}</span>
                 </div>
               )}
             </div>

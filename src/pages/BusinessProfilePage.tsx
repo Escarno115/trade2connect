@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, MapPin, Star, Crown, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MapPin, Star, Crown, Clock, Zap } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn, formatResponseTime } from "@/lib/utils";
 import { ReviewsList } from "@/components/ReviewsList";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
 
@@ -37,6 +37,19 @@ const BusinessProfilePage = () => {
         .eq("is_active", true)
         .order("created_at", { ascending: false });
       return data ?? [];
+    },
+    enabled: !!id,
+  });
+
+  const { data: responseStats } = useQuery({
+    queryKey: ["business-response-stats", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("business_response_stats")
+        .select("avg_response_seconds, replied_count")
+        .eq("business_id", id!)
+        .maybeSingle();
+      return data;
     },
     enabled: !!id,
   });
@@ -108,6 +121,21 @@ const BusinessProfilePage = () => {
         {business.description && (
           <p className="text-sm text-muted-foreground">{business.description}</p>
         )}
+
+        {/* Response Time */}
+        {(() => {
+          const label = formatResponseTime(responseStats?.avg_response_seconds);
+          if (!label) return null;
+          return (
+            <div className="mt-3 flex items-center gap-2 bg-primary/10 text-primary rounded-lg px-3 py-2">
+              <Zap className="h-4 w-4 fill-primary" />
+              <div className="flex-1">
+                <p className="text-xs font-semibold">Typically replies in {label}</p>
+                <p className="text-[10px] text-primary/70">Based on {responseStats?.replied_count} customer messages</p>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Office Address */}
         {(business as any).office_address && (
