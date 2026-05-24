@@ -17,12 +17,14 @@ type BusinessCardProps = {
   serviceCount?: number;
   avgRating?: number;
   reviewCount?: number;
+  avgResponseSeconds?: number | null;
 };
 
-export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount }: BusinessCardProps) => {
+export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount, avgResponseSeconds }: BusinessCardProps) => {
   const navigate = useNavigate();
   const isUltimate = business.subscription_tier === "pro";
   const isVerified = business.verification_status === "approved";
+  const responseLabel = formatResponseTime(avgResponseSeconds);
 
   return (
     <Card
