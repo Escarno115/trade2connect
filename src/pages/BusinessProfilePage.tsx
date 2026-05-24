@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle2, MapPin, Star, Crown, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MapPin, Star, Crown, Clock, Zap } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn, formatResponseTime } from "@/lib/utils";
 import { ReviewsList } from "@/components/ReviewsList";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
 
