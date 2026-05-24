@@ -41,6 +41,19 @@ const BusinessProfilePage = () => {
     enabled: !!id,
   });
 
+  const { data: responseStats } = useQuery({
+    queryKey: ["business-response-stats", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("business_response_stats")
+        .select("avg_response_seconds, replied_count")
+        .eq("business_id", id!)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
   if (isLoading) {
     return (
       <div className="pb-20">
