@@ -20,11 +20,28 @@ export const VerificationUpload = ({ businessId, userId, country, requiresLicens
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const countryConfig = country ? getCountryByCode(country) : undefined;
-  const docTypes: RequiredDoc[] = country
-    ? getRequiredDocsFor(country, requiresLicense)
-    : FALLBACK_DOC_TYPES;
+  const docTypes: RequiredDoc[] = country ? getRequiredDocsFor(country, requiresLicense) : [];
   const [docType, setDocType] = useState(docTypes[0]?.value ?? "");
   const [uploading, setUploading] = useState(false);
+
+  if (VERIFICATION_DOCS_PAUSED) {
+    return (
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold">Verification Documents</h3>
+        </div>
+        <div className="flex items-start gap-2 p-3 bg-primary/10 rounded-xl text-xs">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+          <div>
+            <p className="font-semibold text-foreground">Document verification is paused</p>
+            <p className="text-muted-foreground mt-1">
+              No ID or license uploads are required right now. We'll re-enable verification before we launch to customers — you'll be notified to upload the required documents at that time.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const { data: existingDocs } = useQuery({
     queryKey: ["verification-docs", businessId],
