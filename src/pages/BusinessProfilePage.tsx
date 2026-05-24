@@ -122,6 +122,21 @@ const BusinessProfilePage = () => {
           <p className="text-sm text-muted-foreground">{business.description}</p>
         )}
 
+        {/* Response Time */}
+        {(() => {
+          const label = formatResponseTime(responseStats?.avg_response_seconds);
+          if (!label) return null;
+          return (
+            <div className="mt-3 flex items-center gap-2 bg-primary/10 text-primary rounded-lg px-3 py-2">
+              <Zap className="h-4 w-4 fill-primary" />
+              <div className="flex-1">
+                <p className="text-xs font-semibold">Typically replies in {label}</p>
+                <p className="text-[10px] text-primary/70">Based on {responseStats?.replied_count} customer messages</p>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Office Address */}
         {(business as any).office_address && (
           <div className="flex items-start gap-1.5 mt-3">
