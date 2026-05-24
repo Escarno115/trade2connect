@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.auto_approve_business_prelaunch() FROM anon, authenticated, PUBLIC;
