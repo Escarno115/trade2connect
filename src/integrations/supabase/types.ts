@@ -65,6 +65,13 @@ export type Database = {
             foreignKeyName: "bookings_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
+          {
+            foreignKeyName: "bookings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -204,6 +211,13 @@ export type Database = {
             foreignKeyName: "invoices_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
+          {
+            foreignKeyName: "invoices_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -284,6 +298,13 @@ export type Database = {
             foreignKeyName: "portfolio_images_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
+          {
+            foreignKeyName: "portfolio_images_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -349,6 +370,13 @@ export type Database = {
           review_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "review_responses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
           {
             foreignKeyName: "review_responses_business_id_fkey"
             columns: ["business_id"]
@@ -419,6 +447,13 @@ export type Database = {
             foreignKeyName: "reviews_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -470,6 +505,13 @@ export type Database = {
             foreignKeyName: "services_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
+          {
+            foreignKeyName: "services_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -514,6 +556,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subscription_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
           {
             foreignKeyName: "subscription_requests_business_id_fkey"
             columns: ["business_id"]
@@ -575,6 +624,13 @@ export type Database = {
             foreignKeyName: "verification_documents_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
+          },
+          {
+            foreignKeyName: "verification_documents_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -589,6 +645,14 @@ export type Database = {
       }
     }
     Views: {
+      business_response_stats: {
+        Row: {
+          avg_response_seconds: number | null
+          business_id: string | null
+          replied_count: number | null
+        }
+        Relationships: []
+      }
       businesses_public: {
         Row: {
           city: string | null
@@ -681,6 +745,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "bookings"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_response_stats"
+            referencedColumns: ["business_id"]
           },
           {
             foreignKeyName: "reviews_business_id_fkey"
