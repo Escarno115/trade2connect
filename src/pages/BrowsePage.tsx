@@ -104,6 +104,22 @@ const BrowsePage = () => {
     enabled: businessIds.length > 0,
   });
 
+  const { data: responseMap } = useQuery({
+    queryKey: ["browse-response-stats", businessIds],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("business_response_stats")
+        .select("business_id, avg_response_seconds")
+        .in("business_id", businessIds);
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        if (r.avg_response_seconds != null) map[r.business_id] = r.avg_response_seconds;
+      });
+      return map;
+    },
+    enabled: businessIds.length > 0,
+  });
+
   // Apply rating filter client-side
   const filteredBusinesses = useMemo(() => {
     if (!businesses || minRating === 0 || !ratingsMap) return businesses;
