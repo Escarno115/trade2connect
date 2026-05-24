@@ -79,6 +79,12 @@ export const BusinessCard = ({ business, serviceCount, avgRating, reviewCount, a
                   )}
                 </div>
               )}
+              {responseLabel && (
+                <div className="flex items-center gap-1 text-primary">
+                  <Zap className="h-3 w-3 fill-primary" />
+                  <span className="text-[11px] font-medium">{responseLabel}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
