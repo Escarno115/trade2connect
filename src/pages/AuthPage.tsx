@@ -102,40 +102,19 @@ const AuthPage = () => {
         </div>
 
         <h1 className="text-2xl font-bold">
-          {isLogin ? "Welcome back" : role === "business" ? "Register your business" : "Create your account"}
+          {isLogin ? "Welcome back" : "Register your business"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {isLogin ? "Sign in to continue" : "Join TradeConnect in seconds"}
         </p>
 
         {!isLogin && (
-          <>
-            <div className="mt-4 grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted">
-              <button
-                type="button"
-                onClick={() => setRole("customer")}
-                className={`py-2 rounded-lg text-sm font-medium transition ${role === "customer" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
-              >
-                Customer
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("business")}
-                className={`py-2 rounded-lg text-sm font-medium transition ${role === "business" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
-              >
-                Business
-              </button>
-            </div>
-
-            {role === "business" && (
-              <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-foreground space-y-1.5">
-                <p className="font-semibold text-primary">🚀 Free during launch phase</p>
-                <p className="text-muted-foreground">
-                  Registration and listings are <span className="font-medium text-foreground">100% free for now</span>. Subscription plans and commission will be introduced in a future update — early businesses get priority placement.
-                </p>
-              </div>
-            )}
-          </>
+          <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-foreground space-y-1.5">
+            <p className="font-semibold text-primary">🚀 Free during launch phase</p>
+            <p className="text-muted-foreground">
+              Sign-ups are currently open to <span className="font-medium text-foreground">businesses only</span>. Registration and listings are <span className="font-medium text-foreground">100% free for now</span> — early businesses get priority placement.
+            </p>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
