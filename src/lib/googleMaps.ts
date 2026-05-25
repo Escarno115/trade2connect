@@ -1,7 +1,7 @@
 // Loader for the Google Maps JS API (used for Places Autocomplete - New)
-let loadPromise: Promise<typeof google> | null = null;
+let loadPromise: Promise<any> | null = null;
 
-export function loadGoogleMaps(): Promise<typeof google> {
+export function loadGoogleMaps(): Promise<any> {
   if (typeof window === "undefined") return Promise.reject(new Error("no window"));
   if ((window as any).google?.maps?.places) return Promise.resolve((window as any).google);
   if (loadPromise) return loadPromise;
