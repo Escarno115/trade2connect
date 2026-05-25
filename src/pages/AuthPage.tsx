@@ -75,7 +75,7 @@ const AuthPage = () => {
           },
         });
         if (error) throw error;
-        toast.success("Check your email to confirm your account before signing in.");
+        toast.success("Account created! Please sign in.");
         setIsLogin(true);
       }
     } catch (error: any) {
@@ -128,7 +128,7 @@ const AuthPage = () => {
             <Label htmlFor="email" className="text-xs font-medium">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="mt-1" />
             {!isLogin && (
-              <p className="text-[11px] text-muted-foreground mt-1">We'll send a confirmation link — please use a real inbox you can access.</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Please use a real email address.</p>
             )}
           </div>
           <div>
