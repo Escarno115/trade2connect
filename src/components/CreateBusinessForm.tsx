@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { COUNTRIES, getCountryByCode, validatePhone, getRequiredDocsFor, VERIFICATION_DOCS_PAUSED } from "@/lib/countries";
 import { Switch } from "@/components/ui/switch";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 
 export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const navigate = useNavigate();
@@ -48,6 +49,9 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!country) throw new Error("Please select a country");
+      if (!officeAddress.trim()) throw new Error("Office / workshop address is required");
+      const areas = serviceAreas.split(",").map(s => s.trim()).filter(Boolean);
+      if (areas.length === 0) throw new Error("Please add at least one area of service");
       if (phone && !validatePhone(country, phone)) {
         throw new Error(`Invalid phone format. Expected: ${countryConfig?.phonePlaceholder}`);
       }
@@ -59,8 +63,8 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         description: desc || null,
         phone: phone || null,
         email: email || null,
-        office_address: officeAddress || null,
-        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+        office_address: officeAddress,
+        service_areas: areas,
         requires_license: requiresLicense,
       } as any);
       if (error) throw error;
@@ -107,11 +111,14 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
             </div>
             <div>
               <Label className="text-xs">City / Region *</Label>
-              <Input value={city} onChange={(e) => setCity(e.target.value)} required className="mt-1" />
-            </div>
-            <div>
-              <Label className="text-xs">Description</Label>
-              <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} className="mt-1" />
+              <AddressAutocomplete
+                value={city}
+                onChange={setCity}
+                countryCode={country}
+                placeholder="Search for your city..."
+                required
+                className="mt-1"
+              />
             </div>
             <div>
               <Label className="text-xs">Phone Number *</Label>
@@ -136,13 +143,25 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
             </div>
             <div>
-              <Label className="text-xs">Office / Workshop Address</Label>
-              <Textarea value={officeAddress} onChange={(e) => setOfficeAddress(e.target.value)} rows={2} className="mt-1" placeholder="Full address of your workplace" />
+              <Label className="text-xs">Description</Label>
+              <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} className="mt-1" />
             </div>
             <div>
-              <Label className="text-xs">Areas of Service</Label>
-              <Input value={serviceAreas} onChange={(e) => setServiceAreas(e.target.value)} className="mt-1" placeholder="e.g. Downtown, Westside, North County" />
-              <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve</p>
+              <Label className="text-xs">Office / Workshop Address *</Label>
+              <AddressAutocomplete
+                value={officeAddress}
+                onChange={setOfficeAddress}
+                countryCode={country}
+                placeholder="Start typing your full address..."
+                required
+                className="mt-1"
+              />
+              <p className="text-[10px] text-muted-foreground mt-0.5">Pick a suggestion to ensure an accurate location.</p>
+            </div>
+            <div>
+              <Label className="text-xs">Areas of Service *</Label>
+              <Input value={serviceAreas} onChange={(e) => setServiceAreas(e.target.value)} required className="mt-1" placeholder="e.g. Downtown, Westside, North County" />
+              <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve (at least one required).</p>
             </div>
 
             {!VERIFICATION_DOCS_PAUSED && (
