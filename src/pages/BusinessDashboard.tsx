@@ -21,6 +21,7 @@ import { getCountryByCode } from "@/lib/countries";
 import { PortfolioUpload } from "@/components/PortfolioUpload";
 import { ReviewsList } from "@/components/ReviewsList";
 import { PayPalPayment } from "@/components/PayPalPayment";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import type { Database } from "@/integrations/supabase/types";
 
 type ServiceCategory = Database["public"]["Enums"]["service_category"];
