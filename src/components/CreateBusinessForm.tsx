@@ -143,13 +143,25 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
             </div>
             <div>
-              <Label className="text-xs">Office / Workshop Address</Label>
-              <Textarea value={officeAddress} onChange={(e) => setOfficeAddress(e.target.value)} rows={2} className="mt-1" placeholder="Full address of your workplace" />
+              <Label className="text-xs">Description</Label>
+              <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} className="mt-1" />
             </div>
             <div>
-              <Label className="text-xs">Areas of Service</Label>
-              <Input value={serviceAreas} onChange={(e) => setServiceAreas(e.target.value)} className="mt-1" placeholder="e.g. Downtown, Westside, North County" />
-              <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve</p>
+              <Label className="text-xs">Office / Workshop Address *</Label>
+              <AddressAutocomplete
+                value={officeAddress}
+                onChange={setOfficeAddress}
+                countryCode={country}
+                placeholder="Start typing your full address..."
+                required
+                className="mt-1"
+              />
+              <p className="text-[10px] text-muted-foreground mt-0.5">Pick a suggestion to ensure an accurate location.</p>
+            </div>
+            <div>
+              <Label className="text-xs">Areas of Service *</Label>
+              <Input value={serviceAreas} onChange={(e) => setServiceAreas(e.target.value)} required className="mt-1" placeholder="e.g. Downtown, Westside, North County" />
+              <p className="text-[10px] text-muted-foreground mt-0.5">Comma-separated list of areas you serve (at least one required).</p>
             </div>
 
             {!VERIFICATION_DOCS_PAUSED && (
