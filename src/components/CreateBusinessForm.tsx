@@ -49,6 +49,9 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!country) throw new Error("Please select a country");
+      if (!officeAddress.trim()) throw new Error("Office / workshop address is required");
+      const areas = serviceAreas.split(",").map(s => s.trim()).filter(Boolean);
+      if (areas.length === 0) throw new Error("Please add at least one area of service");
       if (phone && !validatePhone(country, phone)) {
         throw new Error(`Invalid phone format. Expected: ${countryConfig?.phonePlaceholder}`);
       }
@@ -60,8 +63,8 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
         description: desc || null,
         phone: phone || null,
         email: email || null,
-        office_address: officeAddress || null,
-        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+        office_address: officeAddress,
+        service_areas: areas,
         requires_license: requiresLicense,
       } as any);
       if (error) throw error;
