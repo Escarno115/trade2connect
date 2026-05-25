@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { COUNTRIES, getCountryByCode, validatePhone, getRequiredDocsFor, VERIFICATION_DOCS_PAUSED } from "@/lib/countries";
 import { Switch } from "@/components/ui/switch";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 
 export const CreateBusinessForm = ({ userId }: { userId: string }) => {
   const navigate = useNavigate();
