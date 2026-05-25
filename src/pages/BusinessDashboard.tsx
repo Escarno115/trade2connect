@@ -47,10 +47,13 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
 
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
+      if (!officeAddress.trim()) throw new Error("Office address is required");
+      const areas = serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [];
+      if (areas.length === 0) throw new Error("At least one area of service is required");
       const { error } = await supabase.from("businesses").update({
         office_address: officeAddress,
         operating_hours: hours,
-        service_areas: serviceAreas ? serviceAreas.split(",").map(s => s.trim()).filter(Boolean) : [],
+        service_areas: areas,
       } as any).eq("id", business.id);
       if (error) throw error;
     },
