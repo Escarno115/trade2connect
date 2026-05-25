@@ -111,11 +111,14 @@ export const CreateBusinessForm = ({ userId }: { userId: string }) => {
             </div>
             <div>
               <Label className="text-xs">City / Region *</Label>
-              <Input value={city} onChange={(e) => setCity(e.target.value)} required className="mt-1" />
-            </div>
-            <div>
-              <Label className="text-xs">Description</Label>
-              <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} className="mt-1" />
+              <AddressAutocomplete
+                value={city}
+                onChange={setCity}
+                countryCode={country}
+                placeholder="Search for your city..."
+                required
+                className="mt-1"
+              />
             </div>
             <div>
               <Label className="text-xs">Phone Number *</Label>
