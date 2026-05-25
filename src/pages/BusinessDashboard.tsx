@@ -86,26 +86,28 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
 
       {/* Office Address */}
       <div className="bg-card rounded-xl border p-4">
-        <Label className="text-xs flex items-center gap-1.5 mb-2"><MapPin className="h-3.5 w-3.5" /> Office Address</Label>
-        <Textarea
+        <Label className="text-xs flex items-center gap-1.5 mb-2"><MapPin className="h-3.5 w-3.5" /> Office Address *</Label>
+        <AddressAutocomplete
           value={officeAddress}
-          onChange={(e) => setOfficeAddress(e.target.value)}
-          placeholder="Enter your office/workshop address..."
-          rows={2}
-          className="text-sm"
+          onChange={setOfficeAddress}
+          countryCode={(business as any).country}
+          placeholder="Start typing your full address..."
+          required
         />
+        <p className="text-[10px] text-muted-foreground mt-1">Pick a suggestion to ensure an accurate location.</p>
       </div>
 
       {/* Service Areas */}
       <div className="bg-card rounded-xl border p-4">
-        <Label className="text-xs flex items-center gap-1.5 mb-2"><MapPin className="h-3.5 w-3.5" /> Areas of Service</Label>
+        <Label className="text-xs flex items-center gap-1.5 mb-2"><MapPin className="h-3.5 w-3.5" /> Areas of Service *</Label>
         <Input
           value={serviceAreas}
           onChange={(e) => setServiceAreas(e.target.value)}
           placeholder="e.g. Downtown, Westside, North County"
           className="text-sm"
+          required
         />
-        <p className="text-[10px] text-muted-foreground mt-1">Comma-separated list of areas you serve</p>
+        <p className="text-[10px] text-muted-foreground mt-1">Comma-separated list of areas you serve (at least one required).</p>
       </div>
 
       {/* Operating Hours */}
