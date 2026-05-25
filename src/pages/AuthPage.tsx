@@ -36,7 +36,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const { user, userRole, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState<Role>("customer");
+  const [role] = useState<Role>("business");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
