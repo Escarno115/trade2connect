@@ -143,23 +143,57 @@ const AdminPanel = () => {
 
   const handleRequestMutation = useMutation({
     mutationFn: async ({ id, status, businessId, requestedTier }: { id: string; status: "approved" | "rejected"; businessId: string; requestedTier: SubscriptionTier }) => {
-      const { error: reqError } = await supabase
-        .from("subscription_requests")
-        .update({ status })
-        .eq("id", id);
-      if (reqError) throw reqError;
-      if (status === "approved") {
-        const { error: bizError } = await supabase
-          .from("businesses")
-          .update({ subscription_tier: requestedTier })
-          .eq("id", businessId);
-        if (bizError) throw bizError;
+      if (status === "rejected") {
+        const { error } = await supabase
+          .from("subscription_requests")
+          .update({ status })
+          .eq("id", id);
+        if (error) throw error;
+        return { invoiced: false };
       }
+
+      // On approval: issue a pending invoice tied to this request.
+      // The tier upgrade happens automatically when the invoice is paid (DB trigger).
+      const { data: biz, error: bizErr } = await supabase
+        .from("businesses")
+        .select("billing_cycle")
+        .eq("id", businessId)
+        .single();
+      if (bizErr) throw bizErr;
+
+      const cycle = (biz as any)?.billing_cycle === "weekly" ? "weekly" : "monthly";
+      const priceMap = {
+        basic: { monthly: 50, weekly: 12.5 },
+        pro: { monthly: 100, weekly: 25 },
+        free: { monthly: 0, weekly: 0 },
+      } as const;
+      const amount = priceMap[requestedTier][cycle];
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 7);
+
+      const { error: invErr } = await supabase.from("invoices" as any).insert({
+        business_id: businessId,
+        amount,
+        billing_cycle: cycle,
+        subscription_tier: requestedTier,
+        status: "pending",
+        due_date: dueDate.toISOString().slice(0, 10),
+        subscription_request_id: id,
+      });
+      if (invErr) throw invErr;
+
+      // Keep the request "pending" until payment lands; trigger flips it to "approved" on paid.
+      return { invoiced: true };
     },
-    onSuccess: (_, vars) => {
-      toast.success(vars.status === "approved" ? "Upgrade approved! Business tier updated." : "Request rejected.");
+    onSuccess: (res, vars) => {
+      toast.success(
+        vars.status === "rejected"
+          ? "Request rejected."
+          : "Approved — invoice issued. Tier will activate on payment."
+      );
       queryClient.invalidateQueries({ queryKey: ["admin-subscription-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-businesses"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-invoices"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
