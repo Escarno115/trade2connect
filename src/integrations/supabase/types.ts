@@ -214,6 +214,7 @@ export type Database = {
           id: string
           paid_at: string | null
           status: string
+          subscription_request_id: string | null
           subscription_tier: string
         }
         Insert: {
@@ -225,6 +226,7 @@ export type Database = {
           id?: string
           paid_at?: string | null
           status?: string
+          subscription_request_id?: string | null
           subscription_tier: string
         }
         Update: {
@@ -236,6 +238,7 @@ export type Database = {
           id?: string
           paid_at?: string | null
           status?: string
+          subscription_request_id?: string | null
           subscription_tier?: string
         }
         Relationships: [
@@ -251,6 +254,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_subscription_request_id_fkey"
+            columns: ["subscription_request_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -739,6 +749,7 @@ export type Database = {
       }
     }
     Functions: {
+      expire_subscriptions: { Args: never; Returns: number }
       generate_subscription_invoices: { Args: never; Returns: undefined }
       get_booking_customer_summaries: {
         Args: { _business_id: string }
