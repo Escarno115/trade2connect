@@ -120,9 +120,8 @@ export const validatePhone = (country: string, phone: string): boolean => {
   return config.phonePattern.test(phone);
 };
 
-// Verification documents (ID + license) are temporarily paused pre-launch.
-// Will be re-enabled when we open to customers.
-export const VERIFICATION_DOCS_PAUSED = true;
+// Verification is live — businesses must upload required documents.
+export const VERIFICATION_DOCS_PAUSED = false;
 
 export const getRequiredDocsFor = (
   country: string,

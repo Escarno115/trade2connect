@@ -35,8 +35,10 @@ const isLikelyRealEmail = (email: string) => {
 const AuthPage = () => {
   const navigate = useNavigate();
   const { user, userRole, loading: authLoading } = useAuth();
+  const [searchParams] = [new URLSearchParams(typeof window !== "undefined" ? window.location.search : "")];
+  const initialRole: Role = searchParams.get("role") === "business" ? "business" : "customer";
   const [isLogin, setIsLogin] = useState(true);
-  const [role] = useState<Role>("business");
+  const [role, setRole] = useState<Role>(initialRole);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -46,7 +48,7 @@ const AuthPage = () => {
     if (!authLoading && user) {
       if (userRole === "business") navigate("/dashboard", { replace: true });
       else if (userRole === "admin") navigate("/admin", { replace: true });
-      else navigate("/account", { replace: true });
+      else navigate("/", { replace: true });
     }
   }, [user, userRole, authLoading, navigate]);
 
@@ -102,18 +104,28 @@ const AuthPage = () => {
         </div>
 
         <h1 className="text-2xl font-bold">
-          {isLogin ? "Welcome back" : "Register your business"}
+          {isLogin ? "Welcome back" : role === "business" ? "Register your business" : "Create your account"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {isLogin ? "Sign in to continue" : "Join TradeConnect in seconds"}
         </p>
 
         {!isLogin && (
-          <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-foreground space-y-1.5">
-            <p className="font-semibold text-primary">🚀 Free during launch phase</p>
-            <p className="text-muted-foreground">
-              Sign-ups are currently open to <span className="font-medium text-foreground">businesses only</span>. Registration and listings are <span className="font-medium text-foreground">100% free for now</span> — early businesses get priority placement.
-            </p>
+          <div className="mt-4 grid grid-cols-2 gap-2 p-1 bg-secondary rounded-xl">
+            <button
+              type="button"
+              onClick={() => setRole("customer")}
+              className={`py-2 text-xs font-medium rounded-lg transition-colors ${role === "customer" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+            >
+              I'm a Customer
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("business")}
+              className={`py-2 text-xs font-medium rounded-lg transition-colors ${role === "business" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+            >
+              I'm a Business
+            </button>
           </div>
         )}
 
@@ -136,7 +148,7 @@ const AuthPage = () => {
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} className="mt-1" />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
+            {loading ? "Please wait..." : isLogin ? "Sign In" : role === "business" ? "Create Business Account" : "Create Account"}
           </Button>
         </form>
 

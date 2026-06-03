@@ -141,13 +141,6 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
       {/* Subscription Plans */}
       <div>
         <h3 className="text-sm font-semibold mb-2">Subscription Plans</h3>
-        <div className="mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs space-y-1">
-          <p className="font-semibold text-primary">Subscriptions on hold — free for now 🎉</p>
-          <p className="text-muted-foreground">
-            We're populating the platform with businesses ahead of our customer launch. All plans are free and no commission is charged at this time.
-            Pricing below is shown as a preview — it will only apply when we officially roll out subscriptions in a future update.
-          </p>
-        </div>
         <div className="flex gap-1 bg-secondary rounded-lg p-0.5 mb-3">
           {(["monthly", "weekly"] as const).map((cycle) => (
             <button
@@ -195,17 +188,26 @@ const ProfileTab = ({ business, user, billingCycle, setBillingCycle, upgradeRequ
                 {isUpgrade && !pendingRequest && (
                   <Button
                     size="sm"
-                    variant="secondary"
                     className="w-full mt-2 text-xs"
-                    disabled
+                    onClick={() => requestUpgradeMutation.mutate({ requestedTier: tier, cycle: billingCycle })}
+                    disabled={requestUpgradeMutation.isPending}
                   >
-                    Available at launch
+                    <ArrowUpCircle className="h-3.5 w-3.5 mr-1" />
+                    Upgrade to {TIER_LABELS[tier]}
+                  </Button>
+                )}
+                {pendingRequest && (
+                  <Button size="sm" variant="secondary" className="w-full mt-2 text-xs" disabled>
+                    Awaiting admin approval
                   </Button>
                 )}
               </div>
             );
           })}
         </div>
+        <p className="text-[10px] text-muted-foreground mt-2">
+          Upgrades are reviewed by our team. Once approved, you'll receive an invoice payable via PayPal.
+        </p>
       </div>
 
       {/* Country info */}
