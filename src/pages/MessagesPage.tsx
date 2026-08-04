@@ -1,19 +1,57 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { MessageCircle, Send } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const MessagesPage = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+
+  // Live updates: refresh conversations whenever any message changes
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("messages-list")
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, queryClient]);
+
+  const sendReply = async (bookingId: string) => {
+    if (!replyText.trim() || !user) return;
+    setSending(true);
+    const { error } = await supabase.from("messages").insert({
+      booking_id: bookingId,
+      sender_id: user.id,
+      content: replyText.trim(),
+    });
+    setSending(false);
+    if (error) {
+      toast.error("Couldn't send message");
+      return;
+    }
+    setReplyText("");
+    setReplyTo(null);
+    queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    queryClient.invalidateQueries({ queryKey: ["booking-messages", bookingId] });
+  };
 
   // Get all bookings with messages for this user (as customer or business owner)
   const { data: conversations, isLoading, error } = useQuery({
     queryKey: ["conversations", user?.id],
+
     queryFn: async () => {
       // Get bookings where user is customer
       const { data: customerBookings, error: customerBookingsError } = await supabase
@@ -152,10 +190,10 @@ const MessagesPage = () => {
         ) : conversations && conversations.length > 0 ? (
           <div className="space-y-2">
             {conversations.map((conv: any) => (
+              <div key={conv.bookingId} className="bg-card rounded-xl border">
               <button
-                key={conv.bookingId}
                 onClick={() => navigate(`/messages/${conv.bookingId}`)}
-                className="w-full bg-card rounded-xl border p-3 flex items-center gap-3 text-left active-scale"
+                className="w-full p-3 flex items-center gap-3 text-left active-scale"
               >
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <MessageCircle className="h-4 w-4 text-primary" />
@@ -176,6 +214,32 @@ const MessagesPage = () => {
                   </span>
                 )}
               </button>
+              {replyTo === conv.bookingId ? (
+                <form
+                  onSubmit={(e) => { e.preventDefault(); sendReply(conv.bookingId); }}
+                  className="flex gap-2 px-3 pb-3"
+                >
+                  <Input
+                    autoFocus
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1 h-9 text-xs bg-secondary border-0"
+                  />
+                  <Button type="submit" size="sm" disabled={!replyText.trim() || sending} className="h-9 w-9 p-0">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              ) : (
+                <button
+                  onClick={() => { setReplyTo(conv.bookingId); setReplyText(""); }}
+                  className="w-full text-left px-3 pb-3 text-xs text-primary font-medium"
+                >
+                  Quick reply
+                </button>
+              )}
+              </div>
+
             ))}
           </div>
         ) : (
