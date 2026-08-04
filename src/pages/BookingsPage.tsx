@@ -310,6 +310,8 @@ const BookingsPage = () => {
           </div>
         )}
       </div>
+      )}
+
     </div>
   );
 };
