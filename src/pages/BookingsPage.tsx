@@ -157,19 +157,90 @@ const BookingsPage = () => {
     );
   }
 
+  const showTabs = !!myBusiness?.id;
+  const activeTab = showTabs ? tab : "mine";
+
   return (
     <div className="pb-20">
       <div className="px-4 pt-12 pb-4">
-        <h1 className="text-2xl font-bold">My Bookings</h1>
-        <p className="text-sm text-muted-foreground">Track your service requests</p>
+        <h1 className="text-2xl font-bold">Bookings</h1>
+        <p className="text-sm text-muted-foreground">
+          {activeTab === "mine" ? "Track your service requests" : `Requests for ${myBusiness?.name}`}
+        </p>
       </div>
 
+      {showTabs && (
+        <div className="px-4 pb-3 flex gap-2">
+          <Button
+            size="sm"
+            variant={activeTab === "mine" ? "default" : "outline"}
+            className="flex-1 text-xs"
+            onClick={() => setTab("mine")}
+          >
+            My bookings
+          </Button>
+          <Button
+            size="sm"
+            variant={activeTab === "incoming" ? "default" : "outline"}
+            className="flex-1 text-xs"
+            onClick={() => setTab("incoming")}
+          >
+            Received
+          </Button>
+        </div>
+      )}
+
+      {activeTab === "incoming" ? (
+        <div className="px-4">
+          {incomingLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-secondary rounded-xl animate-pulse" />)}
+            </div>
+          ) : incoming && incoming.length > 0 ? (
+            <div className="space-y-3">
+              {incoming.map((booking: any) => (
+                <div key={booking.id} className="bg-card rounded-xl border p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm">{booking.services?.title}</h3>
+                      <p className="text-xs text-muted-foreground">{booking.customerName}</p>
+                    </div>
+                    <Badge className={cn("text-[10px] border-0", statusColors[booking.status])}>
+                      {booking.status.replace("_", " ")}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <CalendarDays className="h-3 w-3" />
+                      {format(new Date(booking.scheduled_date), "MMM d, yyyy")}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {booking.scheduled_time}
+                    </span>
+                  </div>
+                  {booking.total_price && (
+                    <p className="text-sm font-bold text-primary mt-2">${Number(booking.total_price).toFixed(2)}</p>
+                  )}
+                  <BookingChat bookingId={booking.id} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <CalendarDays className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No bookings received yet</p>
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="px-4">
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-secondary rounded-xl animate-pulse" />)}
           </div>
         ) : bookings && bookings.length > 0 ? (
+
           <div className="space-y-3">
             {bookings.map((booking: any) => (
               <div key={booking.id} className="bg-card rounded-xl border p-4">
