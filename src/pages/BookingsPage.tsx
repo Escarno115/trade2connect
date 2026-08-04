@@ -70,6 +70,58 @@ const BookingsPage = () => {
     enabled: !!user,
   });
 
+  // Business owner: bookings received for their business
+  const { data: myBusiness } = useQuery({
+    queryKey: ["my-business-for-bookings", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("owner_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const { data: incoming, isLoading: incomingLoading } = useQuery({
+    queryKey: ["incoming-bookings", myBusiness?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("bookings")
+        .select("*, services(title, category)")
+        .eq("business_id", myBusiness!.id)
+        .order("created_at", { ascending: false });
+
+      const { data: customers } = await supabase.rpc("get_booking_customer_summaries", {
+        _business_id: myBusiness!.id,
+      });
+      const nameMap = new Map((customers ?? []).map((c: any) => [c.id, c.full_name]));
+
+      return (data ?? []).map((b: any) => ({
+        ...b,
+        customerName: nameMap.get(b.customer_id) || "Customer",
+      }));
+    },
+    enabled: !!myBusiness?.id,
+  });
+
+  // Live updates for incoming bookings
+  useEffect(() => {
+    if (!myBusiness?.id) return;
+    const channel = supabase
+      .channel(`incoming-bookings-${myBusiness.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bookings", filter: `business_id=eq.${myBusiness.id}` },
+        () => queryClient.invalidateQueries({ queryKey: ["incoming-bookings"] })
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [myBusiness?.id, queryClient]);
+
+  const [tab, setTab] = useState<"mine" | "incoming">("mine");
+
   // Fetch existing reviews by this user to know which bookings already have reviews
   const { data: myReviews } = useQuery({
     queryKey: ["my-reviews", user?.id],
@@ -84,6 +136,7 @@ const BookingsPage = () => {
   });
 
   const [reviewingBookingId, setReviewingBookingId] = useState<string | null>(null);
+
 
   if (authLoading) {
     return (
