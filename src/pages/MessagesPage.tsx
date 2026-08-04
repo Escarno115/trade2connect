@@ -1,19 +1,57 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { MessageCircle, Send } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const MessagesPage = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+
+  // Live updates: refresh conversations whenever any message changes
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("messages-list")
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, queryClient]);
+
+  const sendReply = async (bookingId: string) => {
+    if (!replyText.trim() || !user) return;
+    setSending(true);
+    const { error } = await supabase.from("messages").insert({
+      booking_id: bookingId,
+      sender_id: user.id,
+      content: replyText.trim(),
+    });
+    setSending(false);
+    if (error) {
+      toast.error("Couldn't send message");
+      return;
+    }
+    setReplyText("");
+    setReplyTo(null);
+    queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    queryClient.invalidateQueries({ queryKey: ["booking-messages", bookingId] });
+  };
 
   // Get all bookings with messages for this user (as customer or business owner)
   const { data: conversations, isLoading, error } = useQuery({
     queryKey: ["conversations", user?.id],
+
     queryFn: async () => {
       // Get bookings where user is customer
       const { data: customerBookings, error: customerBookingsError } = await supabase
