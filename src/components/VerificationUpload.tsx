@@ -55,12 +55,19 @@ export const VerificationUpload = ({ businessId, userId, country, requiresLicens
     },
   });
 
+  const ALLOWED_MIME = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
   const handleUpload = async (file: File) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File must be under 10MB");
       return;
     }
+    if (!ALLOWED_MIME.includes(file.type.toLowerCase())) {
+      toast.error("Only PDF, JPG, PNG or WebP files are allowed");
+      return;
+    }
+
 
     setUploading(true);
     try {
