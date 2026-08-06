@@ -76,7 +76,8 @@ export const VerificationUpload = ({ businessId, userId, country, requiresLicens
 
       const { error: uploadError } = await supabase.storage
         .from("verification-docs")
-        .upload(path, file);
+        .upload(path, file, { contentType: file.type });
+
 
       if (uploadError) throw uploadError;
 
