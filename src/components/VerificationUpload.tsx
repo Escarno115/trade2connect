@@ -55,12 +55,19 @@ export const VerificationUpload = ({ businessId, userId, country, requiresLicens
     },
   });
 
+  const ALLOWED_MIME = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
   const handleUpload = async (file: File) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File must be under 10MB");
       return;
     }
+    if (!ALLOWED_MIME.includes(file.type.toLowerCase())) {
+      toast.error("Only PDF, JPG, PNG or WebP files are allowed");
+      return;
+    }
+
 
     setUploading(true);
     try {
@@ -69,7 +76,8 @@ export const VerificationUpload = ({ businessId, userId, country, requiresLicens
 
       const { error: uploadError } = await supabase.storage
         .from("verification-docs")
-        .upload(path, file);
+        .upload(path, file, { contentType: file.type });
+
 
       if (uploadError) throw uploadError;
 
