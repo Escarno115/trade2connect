@@ -765,6 +765,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_business_public: { Args: { _business_id: string }; Returns: boolean }
+      owns_business: {
+        Args: { _business_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       booking_status:
