@@ -43,7 +43,8 @@ const BookServicePage = () => {
         scheduled_date: date,
         scheduled_time: time,
         notes: notes || null,
-        total_price: Number(service.base_price),
+        // total_price is set server-side from the service's current listed price
+
       });
       if (error) throw error;
     },
