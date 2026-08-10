@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -44,6 +45,11 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // Per-user rate limit: 10 requests / 60s
+    const limit = await checkRateLimit(supabase, `generate-invoices:${user.id}`, 10, 60);
+    if (!limit.allowed) return rateLimitResponse(limit, corsHeaders);
+
     const { error } = await supabase.rpc("generate_subscription_invoices");
     if (error) throw error;
 

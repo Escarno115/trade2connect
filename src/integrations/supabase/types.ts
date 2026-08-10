@@ -375,6 +375,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          created_at: string
+          key: string
+          request_count: number
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          request_count?: number
+          updated_at?: string
+          window_start: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          request_count?: number
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       review_responses: {
         Row: {
           business_id: string
@@ -749,6 +773,15 @@ export type Database = {
       }
     }
     Functions: {
+      check_rate_limit: {
+        Args: { _key: string; _max_requests?: number; _window_seconds?: number }
+        Returns: {
+          allowed: boolean
+          current_count: number
+          retry_after_seconds: number
+        }[]
+      }
+      cleanup_rate_limits: { Args: never; Returns: number }
       expire_subscriptions: { Args: never; Returns: number }
       generate_subscription_invoices: { Args: never; Returns: undefined }
       get_booking_customer_summaries: {
