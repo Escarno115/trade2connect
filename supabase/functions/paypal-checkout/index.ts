@@ -66,6 +66,12 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Per-user rate limit: 10 requests / 60s
+    const limit = await checkRateLimit(adminClient, `paypal-checkout:${user.id}`, 10, 60);
+    if (!limit.allowed) return rateLimitResponse(limit, corsHeaders);
+
+
+
     if (action === "create") {
       // Fetch invoice & verify ownership
       const { data: invoice, error: invErr } = await adminClient
