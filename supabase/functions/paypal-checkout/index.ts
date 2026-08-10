@@ -14,6 +14,11 @@ const PAYPAL_BASE =
     ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 
+if (Deno.env.get("PAYPAL_MODE") !== "live") {
+  console.warn('⚠️ PAYPAL_MODE is not set to "live" — running in sandbox');
+}
+
+
 async function getAccessToken(): Promise<string> {
   const secret = PAYPAL_SECRET ?? "";
   const res = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
