@@ -55,7 +55,7 @@ expect_no_field "businesses_public?select=*&limit=5" "owner_id"
 expect_denied "businesses?select=*&limit=1"
 expect_denied "businesses?select=phone,email&limit=1"
 expect_denied "businesses?select=owner_id&limit=1"
-expect_ok     "businesses?select=id,name,city&limit=1"
+expect_denied "businesses?select=id,name,city&limit=1"
 expect_ok     "reviews_public?select=*&limit=5"
 
 exit $fail
