@@ -69,13 +69,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bookings_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "bookings_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
@@ -112,13 +105,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: true
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "business_response_stats_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: true
-            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -250,13 +236,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "invoices_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "invoices_subscription_request_id_fkey"
             columns: ["subscription_request_id"]
             isOneToOne: false
@@ -334,13 +313,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "portfolio_images_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -430,13 +402,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "review_responses_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "review_responses_review_id_fkey"
             columns: ["review_id"]
             isOneToOne: true
@@ -495,13 +460,6 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "reviews_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       services: {
@@ -546,13 +504,6 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "services_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       subscription_requests: {
@@ -592,13 +543,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscription_requests_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -651,13 +595,6 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "verification_documents_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
@@ -679,44 +616,6 @@ export type Database = {
             | Database["public"]["Enums"]["subscription_tier"]
             | null
           verification_status:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-        }
-        Insert: {
-          city?: string | null
-          country?: string | null
-          cover_url?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          logo_url?: string | null
-          name?: string | null
-          office_address?: string | null
-          operating_hours?: Json | null
-          service_areas?: string[] | null
-          subscription_tier?:
-            | Database["public"]["Enums"]["subscription_tier"]
-            | null
-          verification_status?:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-        }
-        Update: {
-          city?: string | null
-          country?: string | null
-          cover_url?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          logo_url?: string | null
-          name?: string | null
-          office_address?: string | null
-          operating_hours?: Json | null
-          service_areas?: string[] | null
-          subscription_tier?:
-            | Database["public"]["Enums"]["subscription_tier"]
-            | null
-          verification_status?:
             | Database["public"]["Enums"]["verification_status"]
             | null
         }
@@ -762,13 +661,6 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "reviews_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
@@ -799,6 +691,24 @@ export type Database = {
         Returns: boolean
       }
       is_business_public: { Args: { _business_id: string }; Returns: boolean }
+      list_public_businesses: {
+        Args: never
+        Returns: {
+          city: string
+          country: string
+          cover_url: string
+          description: string
+          id: string
+          is_active: boolean
+          logo_url: string
+          name: string
+          office_address: string
+          operating_hours: Json
+          service_areas: string[]
+          subscription_tier: Database["public"]["Enums"]["subscription_tier"]
+          verification_status: Database["public"]["Enums"]["verification_status"]
+        }[]
+      }
       owns_business: {
         Args: { _business_id: string; _user_id: string }
         Returns: boolean
