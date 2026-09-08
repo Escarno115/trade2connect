@@ -6,7 +6,7 @@
 #
 # Expectations (anonymous / unauthenticated caller):
 #   - businesses_public   -> readable (approved + active rows only)
-#   - businesses.phone / .email / .owner_id / select=*  -> permission denied
+#   - businesses (base table) -> permission denied for anon (all columns)
 #   - reviews (base table) -> only reviews of publicly listed businesses
 set -euo pipefail
 
