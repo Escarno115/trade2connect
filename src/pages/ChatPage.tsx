@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { ReportDialog } from "@/components/ReportDialog";
 
 const ChatPage = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -156,6 +157,12 @@ const ChatPage = () => {
           <h2 className="text-sm font-bold truncate">{otherName}</h2>
           <p className="text-[10px] text-muted-foreground truncate">{(booking as any).services?.title}</p>
         </div>
+        <ReportDialog
+          targetName={otherName}
+          bookingId={bookingId}
+          businessId={isBusinessOwner ? null : (booking as any).business_id}
+          userId={isBusinessOwner ? (booking as any).customer_id : null}
+        />
       </div>
 
       {/* Messages */}

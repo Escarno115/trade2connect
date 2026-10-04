@@ -371,6 +371,63 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          admin_note: string | null
+          booking_id: string | null
+          created_at: string
+          details: string
+          id: string
+          reason: string
+          reported_business_id: string | null
+          reported_user_id: string | null
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          booking_id?: string | null
+          created_at?: string
+          details: string
+          id?: string
+          reason: string
+          reported_business_id?: string | null
+          reported_user_id?: string | null
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          booking_id?: string | null
+          created_at?: string
+          details?: string
+          id?: string
+          reason?: string
+          reported_business_id?: string | null
+          reported_user_id?: string | null
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reported_business_id_fkey"
+            columns: ["reported_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_responses: {
         Row: {
           business_id: string

@@ -9,6 +9,7 @@ import { CATEGORIES } from "@/lib/constants";
 import { cn, formatResponseTime } from "@/lib/utils";
 import { ReviewsList } from "@/components/ReviewsList";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
+import { ReportDialog } from "@/components/ReportDialog";
 
 const BusinessProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -121,6 +122,9 @@ const BusinessProfilePage = () => {
         {business.description && (
           <p className="text-sm text-muted-foreground">{business.description}</p>
         )}
+        <div className="flex justify-end -mr-2">
+          <ReportDialog businessId={business.id} targetName={business.name} />
+        </div>
 
         {/* Response Time */}
         {(() => {
