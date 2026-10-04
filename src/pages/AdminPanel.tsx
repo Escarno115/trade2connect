@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Shield, CheckCircle2, XCircle, Users, Building2, CalendarDays, FileText, ExternalLink, ArrowUpCircle, Phone, Receipt, DollarSign, Download } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle2, XCircle, Users, Building2, CalendarDays, FileText, ExternalLink, ArrowUpCircle, Phone, Receipt, DollarSign, Download, Flag } from "lucide-react";
+import { AdminReports } from "@/components/AdminReports";
 import { TIER_LABELS } from "@/lib/constants";
 import { getCountryByCode } from "@/lib/countries";
 import type { Database } from "@/integrations/supabase/types";
@@ -20,7 +21,7 @@ const AdminPanel = () => {
   const { user, userRole } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"businesses" | "requests" | "bookings" | "users" | "invoices">("businesses");
+  const [activeTab, setActiveTab] = useState<"businesses" | "requests" | "bookings" | "users" | "invoices" | "reports">("businesses");
   const [rejectReason, setRejectReason] = useState("");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [expandedBizId, setExpandedBizId] = useState<string | null>(null);
@@ -254,6 +255,7 @@ const AdminPanel = () => {
     { key: "invoices" as const, label: `Inv${pendingInvoicesCount > 0 ? ` (${pendingInvoicesCount})` : ""}`, icon: Receipt },
     { key: "bookings" as const, label: "Book", icon: CalendarDays },
     { key: "users" as const, label: "Users", icon: Users },
+    { key: "reports" as const, label: "Reports", icon: Flag },
   ];
 
   return (
@@ -281,13 +283,13 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      <div className="px-4 mt-4 flex gap-1 bg-secondary rounded-xl p-1">
+      <div className="px-4 mt-4 flex gap-1 bg-secondary rounded-xl p-1 overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key)}
             className={cn(
-              "flex-1 py-2 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1",
+              "flex-1 py-2 px-1 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1 whitespace-nowrap",
               activeTab === t.key ? "bg-card shadow-sm" : "text-muted-foreground"
             )}
           >
@@ -297,6 +299,7 @@ const AdminPanel = () => {
       </div>
 
       <div className="px-4 mt-4">
+        {activeTab === "reports" && <AdminReports />}
         {activeTab === "businesses" && (
           <div className="space-y-3">
             {businesses?.map((biz) => (
