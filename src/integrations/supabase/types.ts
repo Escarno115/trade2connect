@@ -756,10 +756,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_booking_participant: {
-        Args: { _booking_id: string; _user_id: string }
-        Returns: boolean
-      }
       is_business_public: { Args: { _business_id: string }; Returns: boolean }
       list_public_businesses: {
         Args: never
