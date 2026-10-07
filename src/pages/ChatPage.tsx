@@ -9,6 +9,7 @@ import { ArrowLeft, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ReportDialog } from "@/components/ReportDialog";
+import { ChatVideoPlayer, VideoQuoteButton } from "@/components/ChatVideo";
 
 const ChatPage = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -184,6 +185,12 @@ const ChatPage = () => {
                       : "bg-secondary text-secondary-foreground rounded-bl-md"
                   )}
                 >
+                  {msg.is_quote_request && (
+                    <p className="text-[10px] font-bold uppercase tracking-wide mb-1 opacity-80">Video quote request</p>
+                  )}
+                  {msg.attachment_type === "video" && msg.attachment_path && (
+                    <div className="mb-1.5"><ChatVideoPlayer path={msg.attachment_path} /></div>
+                  )}
                   {msg.content}
                 </div>
                 <span className="text-[9px] text-muted-foreground mt-0.5 px-1">
@@ -197,11 +204,21 @@ const ChatPage = () => {
         )}
       </div>
 
+      {!isBusinessOwner && (
+        <p className="px-3 pt-2 text-[11px] text-muted-foreground bg-card border-t">
+          Tap the camera to send a short video of the job and get a quote.
+        </p>
+      )}
       {/* Input */}
       <form
         onSubmit={(e) => { e.preventDefault(); sendMutation.mutate(); }}
-        className="flex gap-2 p-3 border-t bg-card"
+        className={cn("flex gap-2 p-3 bg-card", isBusinessOwner && "border-t")}
       >
+        <VideoQuoteButton
+          bookingId={bookingId!}
+          userId={user.id}
+          onSent={() => queryClient.invalidateQueries({ queryKey: ["booking-messages", bookingId] })}
+        />
         <Input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
