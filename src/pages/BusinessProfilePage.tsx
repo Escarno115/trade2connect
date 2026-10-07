@@ -10,6 +10,7 @@ import { cn, formatResponseTime } from "@/lib/utils";
 import { ReviewsList } from "@/components/ReviewsList";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
 import { ReportDialog } from "@/components/ReportDialog";
+import { RepeatBadges } from "@/components/RepeatCustomers";
 
 const BusinessProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -125,6 +126,7 @@ const BusinessProfilePage = () => {
         <div className="flex justify-end -mr-2">
           <ReportDialog businessId={business.id} targetName={business.name} />
         </div>
+        <RepeatBadges businessId={business.id} />
 
         {/* Response Time */}
         {(() => {

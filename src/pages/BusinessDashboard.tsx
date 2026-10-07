@@ -23,6 +23,7 @@ import { ReviewsList } from "@/components/ReviewsList";
 import { PayPalPayment } from "@/components/PayPalPayment";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import type { Database } from "@/integrations/supabase/types";
+import { LoyaltySettings } from "@/components/RepeatCustomers";
 
 type ServiceCategory = Database["public"]["Enums"]["service_category"];
 type BookingStatus = Database["public"]["Enums"]["booking_status"];
@@ -527,6 +528,11 @@ const BusinessDashboard = () => {
         <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => navigate("/dashboard/analytics")}>
           <BarChart3 className="h-3.5 w-3.5 mr-1" /> View Analytics
         </Button>
+      </div>
+
+      {/* Loyalty reward */}
+      <div className="px-4 mt-3">
+        <LoyaltySettings businessId={business.id} />
       </div>
 
       {/* Tabs */}
