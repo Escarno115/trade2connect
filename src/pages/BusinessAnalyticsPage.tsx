@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, TrendingUp, DollarSign, BarChart3, Star } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { RepeatStatsCard } from "@/components/RepeatCustomers";
 
 const CHART_COLORS = ["hsl(160, 84%, 39%)", "hsl(160, 84%, 55%)", "hsl(160, 84%, 70%)", "hsl(25, 95%, 53%)", "hsl(25, 95%, 70%)"];
 
@@ -128,6 +129,10 @@ const BusinessAnalyticsPage = () => {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <h1 className="text-lg font-bold">Analytics</h1>
+      </div>
+
+      <div className="px-4 mt-4">
+        <RepeatStatsCard businessId={business.id} />
       </div>
 
       {/* Stats Grid */}

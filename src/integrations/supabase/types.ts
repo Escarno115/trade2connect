@@ -21,6 +21,7 @@ export type Database = {
           commission_rate: number | null
           created_at: string
           customer_id: string
+          discount_percent: number
           id: string
           notes: string | null
           scheduled_date: string
@@ -36,6 +37,7 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string
           customer_id: string
+          discount_percent?: number
           id?: string
           notes?: string | null
           scheduled_date: string
@@ -51,6 +53,7 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string
           customer_id?: string
+          discount_percent?: number
           id?: string
           notes?: string | null
           scheduled_date?: string
@@ -73,6 +76,70 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_loyalty: {
+        Row: {
+          business_id: string
+          created_at: string
+          discount_percent: number
+          enabled: boolean
+          min_bookings: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          discount_percent?: number
+          enabled?: boolean
+          min_bookings?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          discount_percent?: number
+          enabled?: boolean
+          min_bookings?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_loyalty_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_repeat_stats: {
+        Row: {
+          business_id: string
+          repeat_customers: number
+          unique_customers: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          repeat_customers?: number
+          unique_customers?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          repeat_customers?: number
+          unique_customers?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_repeat_stats_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
