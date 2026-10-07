@@ -246,26 +246,35 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_path: string | null
+          attachment_type: string | null
           booking_id: string
           content: string
           created_at: string
           id: string
+          is_quote_request: boolean
           is_read: boolean
           sender_id: string
         }
         Insert: {
+          attachment_path?: string | null
+          attachment_type?: string | null
           booking_id: string
           content: string
           created_at?: string
           id?: string
+          is_quote_request?: boolean
           is_read?: boolean
           sender_id: string
         }
         Update: {
+          attachment_path?: string | null
+          attachment_type?: string | null
           booking_id?: string
           content?: string
           created_at?: string
           id?: string
+          is_quote_request?: boolean
           is_read?: boolean
           sender_id?: string
         }
@@ -745,6 +754,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["user_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_booking_participant: {
+        Args: { _booking_id: string; _user_id: string }
         Returns: boolean
       }
       is_business_public: { Args: { _business_id: string }; Returns: boolean }
