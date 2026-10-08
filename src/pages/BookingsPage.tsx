@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Clock, Star } from "lucide-react";
+import { CalendarDays, Clock, Star, Repeat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -98,9 +98,14 @@ const BookingsPage = () => {
       });
       const nameMap = new Map((customers ?? []).map((c: any) => [c.id, c.full_name]));
 
+      const jobCounts = new Map<string, number>();
+      (data ?? []).forEach((b: any) => {
+        if (b.status === "completed") jobCounts.set(b.customer_id, (jobCounts.get(b.customer_id) ?? 0) + 1);
+      });
       return (data ?? []).map((b: any) => ({
         ...b,
         customerName: nameMap.get(b.customer_id) || "Customer",
+        completedJobs: jobCounts.get(b.customer_id) ?? 0,
       }));
     },
     enabled: !!myBusiness?.id,
@@ -204,6 +209,11 @@ const BookingsPage = () => {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm">{booking.services?.title}</h3>
                       <p className="text-xs text-muted-foreground">{booking.customerName}</p>
+                      {booking.completedJobs > 0 && (booking.status !== "completed" || booking.completedJobs > 1) && (
+                        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
+                          <Repeat className="h-2.5 w-2.5" /> Returning customer · {booking.completedJobs} {booking.completedJobs === 1 ? "job" : "jobs"}
+                        </span>
+                      )}
                     </div>
                     <Badge className={cn("text-[10px] border-0", statusColors[booking.status])}>
                       {booking.status.replace("_", " ")}
@@ -264,7 +274,17 @@ const BookingsPage = () => {
                   </span>
                 </div>
                 {booking.total_price && (
-                  <p className="text-sm font-bold text-primary mt-2">${Number(booking.total_price).toFixed(2)}</p>
+                  <p className="text-sm font-bold text-primary mt-2">
+                    ${Number(booking.total_price).toFixed(2)}
+                    {booking.discount_percent > 0 && (
+                      <span className="ml-2 text-[10px] font-semibold">({booking.discount_percent}% loyalty discount)</span>
+                    )}
+                  </p>
+                )}
+                {["completed", "cancelled", "rejected"].includes(booking.status) && (
+                  <Button size="sm" className="w-full mt-3 text-xs" onClick={() => navigate(`/book/${booking.service_id}`)}>
+                    <Repeat className="h-3.5 w-3.5 mr-1" /> Book again
+                  </Button>
                 )}
                 {/* Review section for completed bookings */}
                 {booking.status === "completed" && user && (
