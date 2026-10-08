@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Gift } from "lucide-react";
+import { useLoyalty, loyaltyText } from "@/components/RepeatCustomers";
 import { toast } from "sonner";
 
 const BookServicePage = () => {
@@ -32,6 +33,23 @@ const BookServicePage = () => {
     },
     enabled: !!id,
   });
+
+  const { data: loyalty } = useLoyalty(service?.business_id);
+  const { data: completedCount } = useQuery({
+    queryKey: ["my-completed-count", service?.business_id, user?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("bookings")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", service!.business_id)
+        .eq("customer_id", user!.id)
+        .eq("status", "completed");
+      return count ?? 0;
+    },
+    enabled: !!service?.business_id && !!user,
+  });
+  // Display only — the real discount is applied on the server when the booking is saved
+  const discount = loyalty?.enabled && (completedCount ?? 0) + 1 >= loyalty.min_bookings ? loyalty.discount_percent : 0;
 
   const bookMutation = useMutation({
     mutationFn: async () => {
@@ -79,7 +97,22 @@ const BookServicePage = () => {
           <div className="mt-3 p-4 bg-card rounded-xl border">
             <h3 className="font-semibold text-sm">{service.title}</h3>
             <p className="text-xs text-muted-foreground">{(service as any).businesses?.name}</p>
-            <p className="text-sm font-bold text-primary mt-1">${Number(service.base_price).toFixed(2)}</p>
+            {discount > 0 ? (
+              <p className="text-sm font-bold text-primary mt-1">
+                ${(Number(service.base_price) * (100 - discount) / 100).toFixed(2)}
+                <span className="ml-2 text-xs text-muted-foreground line-through font-normal">${Number(service.base_price).toFixed(2)}</span>
+              </p>
+            ) : (
+              <p className="text-sm font-bold text-primary mt-1">${Number(service.base_price).toFixed(2)}</p>
+            )}
+            {loyalty?.enabled && (
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-primary font-medium">
+                <Gift className="h-3.5 w-3.5" />
+                {discount > 0
+                  ? `Welcome back! Your ${loyalty.discount_percent}% loyalty discount is applied.`
+                  : `Loyalty reward: ${loyaltyText(loyalty)} (${completedCount ?? 0} done so far).`}
+              </p>
+            )}
           </div>
         )}
 
